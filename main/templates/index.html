@@ -1,0 +1,226 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'styles/styles.css'%}"
+      type="text/css"
+    />
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+      integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+      integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+      crossorigin="anonymous"
+    ></script>
+    <link rel="icon" href="#" />
+    <script src="{% static 'scripts/external.js' %}"></script>
+    <script src="http://code.jquery.com/jquery-2.0.2.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.7/umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-base64@3.6.1/base64.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/2.0.16/jspdf.plugin.autotable.js"></script>
+    <!-- <script src="https://unpkg.com/jspdf-autotable@3.5.15/dist/jspdf.plugin.autotable.js"></script> -->
+
+    <title>mimo-агенты</title>
+  </head>
+  <body>
+    <header
+      class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom"
+    >
+      <h1>Исследование малых сетей MIMO-агентов с двумя типами активности</h1>
+    </header>
+    <form class="page" method="POST" action="" id="formId">
+      {% csrf_token %}
+      <div class="section-content">
+        <section class="section-inputNumber">
+          <div class="inputNumber">
+            <div class="inputNumber__cellCount num">
+              <p>Количество агентов</p>
+              <input
+                type="number"
+                id="cellCount"
+                name="count"
+                onkeypress="if ( isNaN(this.value + String.fromCharCode(event.keyCode) )) return false;"
+              />
+            </div>
+            <div class="inputNumber__iterCount num">
+              <p>Количество итераций</p>
+              <input
+                type="number"
+                id="iterCount"
+                name="iter"
+                onkeypress="if ( isNaN(this.value + String.fromCharCode(event.keyCode) )) return false;"
+              />
+            </div>
+          </div>
+          <div class="section-inputNumber__button">
+            <input
+              type="button"
+              class="btn btn-primary next"
+              value="Дальше"
+              onclick="openTab('inputData');"
+            />
+            <input 
+            type="file"
+            class="form-control form-control-sm"
+            value="Обзор..."
+            onchange="readFile(this)"
+            />
+          </div>
+        </section>
+        <section
+          class="section__inputData"
+          id="inputData"
+          style="display: none;"
+        >
+          <div class="section__inputData-fields">
+            <div class="inputData__matrix field" id="matrix">
+              <p>Матрица влияний</p>
+              <div class="matrixId" id="matrixId"></div>
+            </div>
+            <div class="inputData__th field" id="th">
+              <p>Порог активации агентов</p>
+              <div class="thId" id="thId"></div>
+            </div>
+            <div class="inputData_memory field" id="memory">
+              <p>Глубина памяти агентов</p>
+              <div class="memoryId" id="memoryId"></div>
+            </div>
+            <div class="inputData__disc field" id="disc">
+              <p>Коэффициент дисконтирования</p>
+              <div class="discId" id="discId"></div>
+            </div>
+            <div class="inputData__initial field" id="initial">
+              <p>Начальное состояние агентов</p>
+              <div class="initialId" id="initialId"></div>
+            </div>
+            <div class="inputData__stochastic field" id="stochastic">
+              <p>Стохастический вектор</p>
+              <div class="stochasticId" id="stochasticId"></div>
+            </div>
+          </div>
+          <div class="section-inputData__button">
+            <input
+              type="submit"
+              class="btn btn-primary"
+              value="Построить"
+              onclick="showGraph();"
+            />
+            <script type="text/javascript">
+              $(document).ready(function () {
+                $("#formId").submit(function () {
+                  // On form submit event
+                  $.ajax({
+                    data: $(this).serialize(), // get the form data
+                    type: $(this).attr("method"), // GET or POST
+                    url: $(this).attr("action"), // the file to call
+                    success: function (response) {
+                      $("#output").html(response); // update the DIV
+                      var crn = document.createElement("div");
+                      crn.id = "new-block";
+                      document.getElementById("output").appendChild(crn);
+                      $("#new-block").html(response);
+                      var text = document.querySelectorAll("div.textOutout");
+                      var im = document.getElementById("graph");
+                      $("#output").html(im);
+                      $("#textOut").html(text[0]);
+                      document.getElementById("graph-outPut").style.display =
+                        "flex";
+                      document.getElementById("btns").style.display = "flex";
+                    },
+                  });
+                  return false;
+                });
+              });
+            </script>
+          </div>
+        </section>
+        <section class="section-graph">
+          <div class="graph-outPut" id="graph-outPut" style="display: none;">
+            <h2>Графики поведения агентов</h2>
+            <div class="graph-img" id="output">
+              {{data|safe}}
+            </div>
+            <div class="textOutout" id="textOut" >
+              <table class="table table-bordered table-hover table-striped table-prt" id='tblID'>
+                <thead>
+                  <tr>
+                    <th scope="col">Time</th>
+                    <th scope="col">External Network State</th>
+                    <th scope="col">Internal Network State</th>
+                  </tr>
+                  {%for t, s, i in prt%}
+                  <tr>
+                    <th scope="row">{{t}}</th>
+                    <th scope="row">{{s}}</th>
+                    <th scope="row">{{i}}</th>
+                  </tr>
+                  {%endfor%}
+                </thead>
+              </table>
+            </div>
+          </div>
+          <div class="buttons" id="btns" style="display: none;">
+            <input
+              type="button"
+              class="btn btn-primary"
+              id="btn-save"
+              value="Скачать"
+              onclick="downloadData()"
+            />
+            <div class="saveFile" >
+              <input
+              type="button"
+              class="btn btn-primary"
+              id="btn-saveDB"
+              value="Сохранить данные"
+              onclick="saveFile()"
+              />
+              <input 
+              type="text"
+              class="form-control" 
+              aria-label="Large"
+              id = "FileName"
+              value="FileName.txt"
+              />
+            </div>
+            <a
+              href="#"
+              class="btn btn-primary"
+              onclick="location.reload(); return false;"
+              >Начать заново</a
+            >
+          </div>
+        </section>
+      </div>
+    </form>
+  </body>
+</html>
