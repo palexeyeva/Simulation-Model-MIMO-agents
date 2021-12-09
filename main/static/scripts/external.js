@@ -57,7 +57,6 @@ function generateMatrix() {
       var input = document.createElement("input");
       input.id = input.name = "m_" + i + "_" + j;
       input.size = "5";
-      input.required = true;
       tbl.tBodies[0].rows[i].insertCell(-1).appendChild(input);
     }
   }
@@ -92,8 +91,6 @@ function getVect() {
       var input = document.createElement("input");
       input.id = input.name = "st_" + i + "_" + j;
       input.size = "5";
-      input.required = true;
-      // input.setAttribute("onchange", changeInp());
       input.onkeydown = changeInp;
       fiel.tBodies[0].rows[i].insertCell(-1).appendChild(input);
     }
@@ -121,7 +118,6 @@ function getTh() {
   for (var i = 0; i < cell; i++) {
     var fiel = document.createElement("input");
     fiel.name = "th_" + i;
-    fiel.required = true;
     box.appendChild(fiel);
   }
   box.className = "input-field";
@@ -148,7 +144,6 @@ function getMem() {
   for (var i = 0; i < cell; i++) {
     var fiel = document.createElement("input");
     fiel.name = "mem_" + i;
-    fiel.required = true;
     box.appendChild(fiel);
   }
   box.className = "input-field";
@@ -175,7 +170,6 @@ function getDisc() {
   for (var i = 0; i < cell; i++) {
     var fiel = document.createElement("input");
     fiel.name = "disc_" + i;
-    fiel.required = true;
     box.appendChild(fiel);
   }
   box.className = "input-field";
@@ -202,21 +196,10 @@ function getInit() {
   for (var i = 0; i < cell; i++) {
     var fiel = document.createElement("input");
     fiel.name = "init_" + i;
-    fiel.required = true;
     box.appendChild(fiel);
   }
   box.className = "input-field";
   document.getElementById("initialId").appendChild(box);
-}
-
-// Функция валидации полей
-function validateForm(input) {
-  var value = input.value;
-  var rep = /[-\.;":'a-zA-Zа-яА-Я]/;
-  if (rep.test(value)) {
-    value = value.replace(rep, "");
-    input.value = value;
-  }
 }
 
 //
@@ -293,8 +276,6 @@ function readFile(input) {
   reader.onerror = function() {
     console.log(reader.error);
   };
-
-
 }
 
 // Функция сохранение в БД 
@@ -382,7 +363,6 @@ function saveFile() {
 
   
 } 
-
 
 
 // Функция сохранения данных

@@ -20,6 +20,10 @@ import scipy.stats as ss
 
 def index(request):
 
+    def randNormal(m):
+        x = m*np.random.randn(1)
+        return(x[0] if x[0]>=0 else randNormal(m))   
+
     n = 0
     R = []
     Th = []
@@ -33,13 +37,6 @@ def index(request):
     p = []
     if request.method == 'POST':
         n = int(request.POST['count'])    
-        # for i in range(n):
-        #     g = []
-        #     for j in range(n):
-        #         nm = f"m_{i+1}_{j+1}"
-        #         m = float(request.POST[nm])                
-        #         g.append(m)
-        #     R.append(g)
         #Полный граф
         for i in range(n):
             g = []
@@ -51,26 +48,33 @@ def index(request):
             R.append(g)
         print(R)
 
-        #порог
-        center = 100
-        std = 20
-        x = np.arange(0, n)
-        T = ss.norm.pdf(x,loc=center, scale = std )
-        print(T)
+        Th = []
+        cnt = 0
+        while cnt < n:
+            Th.append(randNormal(1))
+            cnt += 1
+        print(Th)
 
         for i in range(n):
-            Th.append(float(request.POST[f"th_{i}"]))
+            disc.append(1)
         for i in range(n):
-            disc.append(float(request.POST[f"disc_{i}"]))
-        for i in range(n):
-            mem.append(int(request.POST[f"mem_{i}"]))
-        for i in range(n):
-            init.append(int(request.POST[f"init_{i}"]))
+            mem.append(1)
+
+        #начальное состояние сети
+        init = np.random.randint(0, 3, n)
+
         for i in range(n):
             g = []
-            p1 = float(request.POST[f"st_{i+1}_1"])
-            g = [p1, 1 - p1]
+            x = np.random.uniform(0, 1, 2)
+            p1 = x[0]
+            p2 = x[1]
+            p_sum = p1+p2
+            p1 = p1/p_sum
+            p2 = p2/p_sum
+            g = [p1, p2]
             st.append(g)
+        print(st)
+
         iter = int(request.POST['iter'])
     
         net = {
@@ -185,6 +189,8 @@ def index(request):
 
                 t += 1
                 step += 1
+
+
             init_new = {}
             g = []
             for i in range(n):
@@ -199,8 +205,6 @@ def index(request):
             tx = {}
             xtick = [i for i in range(t)]
             ytick = [0, 1, 2]
-        
-            # cls = 'Агент №' + str(i)
             width = 0.3
             x = np.arange(t)
             ax = {}
