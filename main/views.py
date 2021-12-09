@@ -6,7 +6,6 @@ import requests
 import random as ran
 import numpy as np
 import matplotlib.pyplot as plt
-# %matplotlib inline
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter, AutoMinorLocator)
 from matplotlib.collections import LineCollection
 from matplotlib import colors as mcolors
@@ -16,6 +15,7 @@ from io import *
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 import base64
 
+import scipy.stats as ss
 
 
 def index(request):
@@ -33,13 +33,31 @@ def index(request):
     p = []
     if request.method == 'POST':
         n = int(request.POST['count'])    
+        # for i in range(n):
+        #     g = []
+        #     for j in range(n):
+        #         nm = f"m_{i+1}_{j+1}"
+        #         m = float(request.POST[nm])                
+        #         g.append(m)
+        #     R.append(g)
+        #Полный граф
         for i in range(n):
             g = []
             for j in range(n):
-                nm = f"m_{i+1}_{j+1}"
-                m = float(request.POST[nm])                
-                g.append(m)
+                if (i != j) :
+                    g.append(1)
+                else:
+                    g.append(0)
             R.append(g)
+        print(R)
+
+        #порог
+        center = 100
+        std = 20
+        x = np.arange(0, n)
+        T = ss.norm.pdf(x,loc=center, scale = std )
+        print(T)
+
         for i in range(n):
             Th.append(float(request.POST[f"th_{i}"]))
         for i in range(n):

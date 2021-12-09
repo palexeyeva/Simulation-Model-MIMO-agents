@@ -47,7 +47,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.7/umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-base64@3.6.1/base64.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/2.0.16/jspdf.plugin.autotable.js"></script>
-    <!-- <script src="https://unpkg.com/jspdf-autotable@3.5.15/dist/jspdf.plugin.autotable.js"></script> -->
 
     <title>mimo-агенты</title>
   </head>
@@ -55,7 +54,7 @@
     <header
       class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom"
     >
-      <h1>Исследование малых сетей MIMO-агентов с двумя типами активности</h1>
+      <h1>Исследование сетей MIMO-агентов</h1>
     </header>
     <form class="page" method="POST" action="" id="formId">
       {% csrf_token %}
@@ -79,6 +78,13 @@
                 name="iter"
                 onkeypress="if ( isNaN(this.value + String.fromCharCode(event.keyCode) )) return false;"
               />
+            </div>
+            <div class="inputNumber__graph num">
+              <p>Модель графа</p>
+              <select class="form-select form-select-sm" aria-label=".form-select-sm example">
+                <option value="Полный граф">Полный граф</option>
+                <option selected value="Граф ЭР">Граф ЭР</option>
+               </select>
             </div>
           </div>
           <div class="section-inputNumber__button">
