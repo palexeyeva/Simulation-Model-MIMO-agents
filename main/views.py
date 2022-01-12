@@ -31,7 +31,7 @@ def index(request):
     disc = []
     init = []
     st = []
-    fig = plt.figure(figsize=(15, 15), constrained_layout = True)
+    fig = plt.figure(figsize=(10, 10), constrained_layout = True)
     iter = 0
     prt = {}
     p = []
@@ -93,12 +93,12 @@ def index(request):
             'state': [init]
         }
 
+
         n = int(n)
         initial = net['init']
         memory = net['mem']
         p = net['st']
-        discount = net['disc']
-        
+        discount = net['disc']        
 
         plotState = list()
         inerState = list()
@@ -120,6 +120,7 @@ def index(request):
                 for k in range(int(2)):
                     curMem1[i][j][k] = curMem1[i][j][k]*0
                     curMem2[i][j][k] = curMem2[i][j][k]*0
+        
         print('Состояние сети для t = 0:', initial)
         while fl == 1:
             step = 0
@@ -190,68 +191,38 @@ def index(request):
                 t += 1
                 step += 1
 
-
-            init_new = {}
-            g = []
-            for i in range(n):
-                for j in range(t):
-                    g.append(plotState[j][i])
-                init_new[str(i)] = g.copy()
-                g = []
+            prop = []
             timePeriod = [f"t{i}" for i in range(t)]
-            activeType = ["0", " ", " "]
-            nr = int(3 * n)
-            gs = gridspec.GridSpec(ncols = 2, nrows = nr , figure=fig)
-            tx = {}
-            xtick = [i for i in range(t)]
-            ytick = [0, 1, 2]
-            width = 0.3
             x = np.arange(t)
-            ax = {}
-            for i in range(n):
-                h1 = list()
-                h2 = list()
-                for k in range(t):
-                    if init_new[str(i)][k] == 0:
-                        h1.append(int(0))
-                        h2.append(int(0))
-                    elif init_new[str(i)][k] == 1:
-                        h1.append(int(1))
-                        h2.append(int(0))
-                    elif init_new[str(i)][k] == 2:
-                        h1.append(int(0))
-                        h2.append(int(1))
-                tx[str(i)] = fig.add_subplot(gs[i, :])
-                tx[str(i)].set_xticks(xtick)
-                tx[str(i)].set_yticks(ytick)
-                tx[str(i)].set_yticklabels(activeType)
-                tx[str(i)].bar(x, h1, width, label='Активности типа 1')
-                tx[str(i)].bar(x, h2, width, label='Активность типа 2') 
-                tx[str(i)].legend(bbox_to_anchor=(1, 0.6))
-                tx[str(i)].set_xticklabels(timePeriod)
-                tx[str(i)].set_title('Внешнее состояние агента №' + str(i+1))
-        
-            for i in range(n):
-                g1 = list()
-                g2 = list()
-                T = list()
-                count = 0
-                for k in range(t):
-                    g1.append(inerState[i][k][0])
-                    g2.append(inerState[i][k][1])
-                    T.append(Th[i])
-                if i % 2 == 0:
-                    ax[str(i)] = fig.add_subplot(gs[n + i - count:n + i - count + 2  , 0])
-                else: 
-                    count = count + 2
-                    ax[str(i)] = fig.add_subplot(gs[n + i - count + 1:n + i - count + 3 , 1])
-                ax[str(i)].plot(g1, lw = 2, label = 'Активности типа 1', marker = 'o')
-                ax[str(i)].plot(g2, lw = 2, label = 'Активность типа 2', marker = 'o')
-                line = ax[str(i)].plot(x, T, linestyle = '--', color = 'grey', lw = 0.7)
-                ax[str(i)].set_title('Внутреннее состояние агента №'+ str(i+1))
-                ax[str(i)].set_xticks(x)
-                ax[str(i)].set_xticklabels(timePeriod)
-                ax[str(i)].legend()
+            y = []
+            #определение координат графика, доля типа
+            actType = 3
+            for i in plotState:
+                tot_el = 0
+                d = {}
+                for j in range(actType):
+                    d[j] = 0
+                for j in i:
+                    d[j] = d[j] + 1
+                    tot_el += 1
+                for j in d: 
+                    d[j] = d[j] / tot_el
+                prop.append(d)
+
+            y = []
+            for i in range(actType):
+                g = []
+                for dic in prop:
+                    g.append(dic[i])
+                y.append(g)
+
+            #построение графика
+            mycolors = ['tab:red', 'tab:blue', 'tab:green', 'tab:orange', 'tab:brown', 'tab:grey']
+            labs = [f"c{i}" for i in range(actType)]
+
+            plt.stackplot(x, y, labels=labs, colors=mycolors, alpha=0.8)
+            plt.legend(fontsize=10, ncol=4)
+            plt.xlim(x[0], x[-1])
 
             iSt = []
             for k in range(int(t)):
@@ -282,3 +253,66 @@ def index(request):
     }  
 
     return render(request, 'index.html', context)
+
+
+        # init_new = {}
+        #     g = []
+        #     for i in range(n):
+        #         for j in range(t):
+        #             g.append(plotState[j][i])
+        #         init_new[str(i)] = g.copy()
+        #         g = []
+        #     timePeriod = [f"t{i}" for i in range(t)]
+        #     activeType = ["0", " ", " "]
+        #     nr = int(3 * n)
+        #     gs = gridspec.GridSpec(ncols = 2, nrows = nr , figure=fig)
+        #     tx = {}
+        #     xtick = [i for i in range(t)]
+        #     ytick = [0, 1, 2]
+        #     width = 0.3
+        #     x = np.arange(t)
+        #     ax = {}
+        #     for i in range(n):
+        #         h1 = list()
+        #         h2 = list()
+        #         for k in range(t):
+        #             if init_new[str(i)][k] == 0:
+        #                 h1.append(int(0))
+        #                 h2.append(int(0))
+        #             elif init_new[str(i)][k] == 1:
+        #                 h1.append(int(1))
+        #                 h2.append(int(0))
+        #             elif init_new[str(i)][k] == 2:
+        #                 h1.append(int(0))
+        #                 h2.append(int(1))
+        #         tx[str(i)] = fig.add_subplot(gs[i, :])
+        #         tx[str(i)].set_xticks(xtick)
+        #         tx[str(i)].set_yticks(ytick)
+        #         tx[str(i)].set_yticklabels(activeType)
+        #         tx[str(i)].bar(x, h1, width, label='Активности типа 1')
+        #         tx[str(i)].bar(x, h2, width, label='Активность типа 2') 
+        #         tx[str(i)].legend(bbox_to_anchor=(1, 0.6))
+        #         tx[str(i)].set_xticklabels(timePeriod)
+        #         tx[str(i)].set_title('Внешнее состояние агента №' + str(i+1))
+        
+        #     for i in range(n):
+        #         g1 = list()
+        #         g2 = list()
+        #         T = list()
+        #         count = 0
+        #         for k in range(t):
+        #             g1.append(inerState[i][k][0])
+        #             g2.append(inerState[i][k][1])
+        #             T.append(Th[i])
+        #         if i % 2 == 0:
+        #             ax[str(i)] = fig.add_subplot(gs[n + i - count:n + i - count + 2  , 0])
+        #         else: 
+        #             count = count + 2
+        #             ax[str(i)] = fig.add_subplot(gs[n + i - count + 1:n + i - count + 3 , 1])
+        #         ax[str(i)].plot(g1, lw = 2, label = 'Активности типа 1', marker = 'o')
+        #         ax[str(i)].plot(g2, lw = 2, label = 'Активность типа 2', marker = 'o')
+        #         line = ax[str(i)].plot(x, T, linestyle = '--', color = 'grey', lw = 0.7)
+        #         ax[str(i)].set_title('Внутреннее состояние агента №'+ str(i+1))
+        #         ax[str(i)].set_xticks(x)
+        #         ax[str(i)].set_xticklabels(timePeriod)
+        #         ax[str(i)].legend()

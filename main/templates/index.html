@@ -81,65 +81,36 @@
             </div>
             <div class="inputNumber__graph num">
               <p>Модель графа</p>
-              <select class="form-select form-select-sm" aria-label=".form-select-sm example">
+              <select
+                class="form-select form-select-sm"
+                aria-label=".form-select-sm example"
+              >
                 <option value="Полный граф">Полный граф</option>
                 <option selected value="Граф ЭР">Граф ЭР</option>
-               </select>
+              </select>
             </div>
           </div>
           <div class="section-inputNumber__button">
             <input
-              type="button"
+              type="submit"
               class="btn btn-primary next"
               value="Дальше"
               onclick="openTab('inputData');"
             />
-            <input 
-            type="file"
-            class="form-control form-control-sm"
-            value="Обзор..."
-            onchange="readFile(this)"
+            <input
+              type="file"
+              class="form-control form-control-sm"
+              value="Обзор..."
+              onchange="readFile(this)"
             />
           </div>
         </section>
         <section
           class="section__inputData"
           id="inputData"
-          style="display: none;"
+          style="display: none"
         >
-          <div class="section__inputData-fields">
-            <div class="inputData__matrix field" id="matrix">
-              <p>Матрица влияний</p>
-              <div class="matrixId" id="matrixId"></div>
-            </div>
-            <div class="inputData__th field" id="th">
-              <p>Порог активации агентов</p>
-              <div class="thId" id="thId"></div>
-            </div>
-            <div class="inputData_memory field" id="memory">
-              <p>Глубина памяти агентов</p>
-              <div class="memoryId" id="memoryId"></div>
-            </div>
-            <div class="inputData__disc field" id="disc">
-              <p>Коэффициент дисконтирования</p>
-              <div class="discId" id="discId"></div>
-            </div>
-            <div class="inputData__initial field" id="initial">
-              <p>Начальное состояние агентов</p>
-              <div class="initialId" id="initialId"></div>
-            </div>
-            <div class="inputData__stochastic field" id="stochastic">
-              <p>Стохастический вектор</p>
-              <div class="stochasticId" id="stochasticId"></div>
-            </div>
-          </div>
           <div class="section-inputData__button">
-            <input
-              type="submit"
-              class="btn btn-primary"
-              value="Построить"
-              onclick="showGraph();"
-            />
             <script type="text/javascript">
               $(document).ready(function () {
                 $("#formId").submit(function () {
@@ -170,13 +141,14 @@
           </div>
         </section>
         <section class="section-graph">
-          <div class="graph-outPut" id="graph-outPut" style="display: none;">
+          <div class="graph-outPut" id="graph-outPut" style="display: none">
             <h2>Графики поведения агентов</h2>
-            <div class="graph-img" id="output">
-              {{data|safe}}
-            </div>
-            <div class="textOutout" id="textOut" >
-              <table class="table table-bordered table-hover table-striped table-prt" id='tblID'>
+            <div class="graph-img" id="output">{{data|safe}}</div>
+            <div class="textOutout" id="textOut">
+              <table
+                class="table table-bordered table-hover table-striped table-prt"
+                id="tblID"
+              >
                 <thead>
                   <tr>
                     <th scope="col">Time</th>
@@ -194,7 +166,7 @@
               </table>
             </div>
           </div>
-          <div class="buttons" id="btns" style="display: none;">
+          <div class="buttons" id="btns" style="display: none">
             <input
               type="button"
               class="btn btn-primary"
@@ -202,20 +174,20 @@
               value="Скачать"
               onclick="downloadData()"
             />
-            <div class="saveFile" >
+            <div class="saveFile">
               <input
-              type="button"
-              class="btn btn-primary"
-              id="btn-saveDB"
-              value="Сохранить данные"
-              onclick="saveFile()"
+                type="button"
+                class="btn btn-primary"
+                id="btn-saveDB"
+                value="Сохранить данные"
+                onclick="saveFile()"
               />
-              <input 
-              type="text"
-              class="form-control" 
-              aria-label="Large"
-              id = "FileName"
-              value="FileName.txt"
+              <input
+                type="text"
+                class="form-control"
+                aria-label="Large"
+                id="FileName"
+                value="FileName.txt"
               />
             </div>
             <a
