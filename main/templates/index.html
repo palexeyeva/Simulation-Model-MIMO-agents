@@ -56,9 +56,9 @@
     >
       <h1>Исследование сетей MIMO-агентов</h1>
     </header>
-    <form class="page" method="POST" action="" id="formId">
+    <form class="page" method="POST" action="" id="formId" enctype="multipart/form-data">
       {% csrf_token %}
-      <div class="section-content">
+      <div class="section-content" id="section-content">
         <section class="section-inputNumber">
           <div class="inputNumber">
             <div class="inputNumber__cellCount num">
@@ -101,6 +101,8 @@
               type="file"
               class="form-control form-control-sm"
               value="Обзор..."
+              name="flop"
+              id = "flop"
               onchange="readFile(this)"
             />
           </div>
@@ -142,9 +144,10 @@
         </section>
         <section class="section-graph">
           <div class="graph-outPut" id="graph-outPut" style="display: none">
-            <h2>Графики поведения агентов</h2>
+            <h2>График поведения сети</h2>
             <div class="graph-img" id="output">{{data|safe}}</div>
-            <div class="textOutout" id="textOut">
+            <div id = "main"></div>
+            <!-- <div class="textOutout" id="textOut">
               <table
                 class="table table-bordered table-hover table-striped table-prt"
                 id="tblID"
@@ -164,7 +167,7 @@
                   {%endfor%}
                 </thead>
               </table>
-            </div>
+            </div> -->
           </div>
           <div class="buttons" id="btns" style="display: none">
             <input

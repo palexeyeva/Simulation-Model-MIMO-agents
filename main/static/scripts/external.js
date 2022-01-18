@@ -32,75 +32,98 @@ function showGraph() {
 }
 // Функция автоматического заполнения 
 function readFile(input) {
-
-  let file = input.files[0];
+  const selectedFile = input.files[0];
 
   let reader = new FileReader();
+  reader.readAsText(selectedFile);
 
-  reader.readAsText(file);
-
-  reader.onload = function() {
+  reader.onload = function(){
     console.log(reader.result);
-    let res = reader.result;
-    let count = res.split(';')[0];
-    let iter = res.split(';')[1];
+    newDiv = document.createElement('div')
+    newDiv.id = "txtInput";
+    newDiv.className = "txtInput";
+    newDiv.innerText = reader.result;
+    document.getElementById("section-content").appendChild(newDiv);
+  }
 
-    console.log(count);
 
-    document.getElementById("cellCount").value = count;
-    document.getElementById("iterCount").value = iter;
-    openTab("inputData");
-
-    let matrix = res.split(';')[2];
-    let p = -1;
-    for (i = 0; i < count; i++) {
-      for (j = 0; j < count; j++) {
-        n = 'm_'+(i+1)+'_'+(j+1);
-        p+=1;
-        document.getElementById(n).value = matrix.split(',')[p];        
-      }
-    }
-
-    let th = res.split(';')[3];
-    for (i = 0; i < count; i++) {
-      n = 'th_' + i;
-      document.getElementsByName(n)[0].value = th.split(',')[i];
-    }
-
-    let mem = res.split(';')[4];
-    for (i = 0; i < count; i++) {
-      n = 'mem_' + i;
-      document.getElementsByName(n)[0].value = mem.split(',')[i];
-    }
-
-    let disc = res.split(';')[5];
-    for (i = 0; i < count; i++) {
-      n = 'disc_' + i;
-      document.getElementsByName(n)[0].value = disc.split(',')[i];
-    }
-
-    let init = res.split(';')[6];
-    for (i = 0; i < count; i++) {
-      n = 'init_' + i;
-      document.getElementsByName(n)[0].value = init.split(',')[i];
-    }
-
-    let st = res.split(';')[7];
-    p = -1;
-    for (i = 0; i < count; i++) {
-      for (j = 0; j < 2; j++) {
-        n = 'st_'+(i+1)+'_'+(j+1);
-        p+=1;
-        document.getElementById(n).value = st.split(',')[p];        
-      }
-    }
-
-  };
-
-  reader.onerror = function() {
-    console.log(reader.error);
-  };
 }
+
+
+
+
+
+
+// function readFile(input) {
+
+//   let file = input.files[0];
+
+//   let reader = new FileReader();
+
+//   reader.readAsText(file);
+
+//   reader.onload = function() {
+//     console.log(reader.result);
+//     let res = reader.result;
+//     let count = res.split(';')[0];
+//     let iter = res.split(';')[1];
+
+//     console.log(count);
+
+//     document.getElementById("cellCount").value = count;
+//     document.getElementById("iterCount").value = iter;
+//     openTab("inputData");
+
+//     let matrix = res.split(';')[2];
+//     let p = -1;
+//     for (i = 0; i < count; i++) {
+//       for (j = 0; j < count; j++) {
+//         n = 'm_'+(i+1)+'_'+(j+1);
+//         p+=1;
+//         document.getElementById(n).value = matrix.split(',')[p];        
+//       }
+//     }
+
+//     let th = res.split(';')[3];
+//     for (i = 0; i < count; i++) {
+//       n = 'th_' + i;
+//       document.getElementsByName(n)[0].value = th.split(',')[i];
+//     }
+
+//     let mem = res.split(';')[4];
+//     for (i = 0; i < count; i++) {
+//       n = 'mem_' + i;
+//       document.getElementsByName(n)[0].value = mem.split(',')[i];
+//     }
+
+//     let disc = res.split(';')[5];
+//     for (i = 0; i < count; i++) {
+//       n = 'disc_' + i;
+//       document.getElementsByName(n)[0].value = disc.split(',')[i];
+//     }
+
+//     let init = res.split(';')[6];
+//     for (i = 0; i < count; i++) {
+//       n = 'init_' + i;
+//       document.getElementsByName(n)[0].value = init.split(',')[i];
+//     }
+
+//     let st = res.split(';')[7];
+//     p = -1;
+//     for (i = 0; i < count; i++) {
+//       for (j = 0; j < 2; j++) {
+//         n = 'st_'+(i+1)+'_'+(j+1);
+//         p+=1;
+//         document.getElementById(n).value = st.split(',')[p];        
+//       }
+//     }
+
+//   };
+
+//   reader.onerror = function() {
+//     console.log(reader.error);
+//   };
+// }
 
 // Функция сохранение в БД 
 function saveFile() {

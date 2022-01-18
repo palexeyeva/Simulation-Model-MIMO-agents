@@ -35,8 +35,16 @@ def index(request):
     iter = 0
     prt = {}
     p = []
+    net = {}
+
     if request.method == 'POST':
         n = int(request.POST['count'])    
+        flop = request.FILES.get('flop')
+        print(flop)
+
+
+
+
         #Полный граф
         for i in range(n):
             g = []
@@ -46,14 +54,14 @@ def index(request):
                 else:
                     g.append(0)
             R.append(g)
-        print(R)
+        # print(R)
 
         Th = []
         cnt = 0
         while cnt < n:
             Th.append(randNormal(1))
             cnt += 1
-        print(Th)
+        # print(Th)
 
         for i in range(n):
             disc.append(1)
@@ -73,7 +81,7 @@ def index(request):
             p2 = p2/p_sum
             g = [p1, p2]
             st.append(g)
-        print(st)
+        # print(st)
 
         iter = int(request.POST['iter'])
     
@@ -121,7 +129,7 @@ def index(request):
                     curMem1[i][j][k] = curMem1[i][j][k]*0
                     curMem2[i][j][k] = curMem2[i][j][k]*0
         
-        print('Состояние сети для t = 0:', initial)
+        # print('Состояние сети для t = 0:', initial)
         while fl == 1:
             step = 0
             while step < iter:
@@ -171,7 +179,7 @@ def index(request):
                             state[j] = ran.randint(1, 2)
                     elif (e[0] == e[1] and e[0] == 0) or (e[0]+e[1] < Th[j]):
                         state[j] = 0
-                    print('Внутреннее состояние агента', j, ': (', sum1, ', ', sum2, ')')
+                    # print('Внутреннее состояние агента', j, ': (', sum1, ', ', sum2, ')')
                     inerState[j].append([sum1, sum2])
                     e = [0, 0]
                     sum1 = 0
@@ -183,7 +191,7 @@ def index(request):
                                 curMem2[j][i][k] = curMem2[j][i][k] * 0
                 initial = state.copy()
                 plotState.append(initial)
-                print('-------Внешнее состояние сети для t =', t,':', initial, '-------')
+                # print('-------Внешнее состояние сети для t =', t,':', initial, '-------')
 
                 prt['t'].append(t)
                 prt['state'].append(initial)
@@ -223,6 +231,8 @@ def index(request):
             plt.stackplot(x, y, labels=labs, colors=mycolors, alpha=0.8)
             plt.legend(fontsize=10, ncol=4)
             plt.xlim(x[0], x[-1])
+            plt.xlabel('Такт')
+            plt.ylabel('Доля')
 
             iSt = []
             for k in range(int(t)):
