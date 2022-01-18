@@ -182,7 +182,7 @@ def index(request):
                     # print('Внутреннее состояние агента', j, ': (', sum1, ', ', sum2, ')')
                     inerState[j].append([sum1, sum2])
                     e = [0, 0]
-                    sum1 = 0
+                    sum1 = 0    
                     sum2 = 0
                     if flag == 1:
                         for i in range(memory[j]):
@@ -203,6 +203,7 @@ def index(request):
             timePeriod = [f"t{i}" for i in range(t)]
             x = np.arange(t)
             y = []
+
             #определение координат графика, доля типа
             actType = 3
             for i in plotState:
@@ -223,10 +224,16 @@ def index(request):
                 for dic in prop:
                     g.append(dic[i])
                 y.append(g)
+            print('---', y)
+
+            y.append(y.pop(0))
+            print(y)
 
             #построение графика
-            mycolors = ['tab:red', 'tab:blue', 'tab:green', 'tab:orange', 'tab:brown', 'tab:grey']
-            labs = [f"c{i}" for i in range(actType)]
+            mycolors = [ 'tab:blue', 'tab:green', 'tab:red', 'tab:orange', 'tab:brown', 'tab:grey']
+            labs = [f"Тип активности {i+1}" for i in range(actType-1)]
+            labs.append('Не активен')
+            print(labs)
 
             plt.stackplot(x, y, labels=labs, colors=mycolors, alpha=0.8)
             plt.legend(fontsize=10, ncol=4)
