@@ -45,9 +45,42 @@ function readFile(input) {
     newDiv.innerText = reader.result;
     document.getElementById("section-content").appendChild(newDiv);
     interData();
+    openBox();
   }
 }
 
+
+function openBox() { 
+  p = document.createElement('p')
+  p.innerText = "Выберите параметры для фиксирования"
+  document.getElementById("checkbox-section").appendChild(p);
+
+  newDiv = document.createElement('div')
+  newDiv.id = "checkboxes"
+  document.getElementById("checkbox-section").appendChild(newDiv);
+  
+  nameArr = ['Матрица', 'Пороги','Начальное состояние','Память', 'Коэф. дисконтирования', 'Стохастический вектор']
+  nameId = ['matrix_str','Th_str','init_str','mem_str','disc_str', 'st']
+  for (i=0; i<6; i++) {
+    var input = document.createElement('input');
+    input.type="checkbox";
+    input.id="inpID" + i;
+    input.name = nameId[i];
+    input.className = "form-check-input"
+
+    
+    var label = document.createElement('label');
+    label.textContent = nameArr[i];
+    label.id="lblID" + i;
+    label.className = "labChk"
+    label.setAttribute("for", input.id);
+    
+    document.getElementById("checkboxes").appendChild(label);
+    label.parentNode.insertBefore(input, label);
+  }
+
+
+}
 
 function interData(){
   sc = document.getElementById("txtInput").innerText;
@@ -72,19 +105,22 @@ function interData(){
   console.log(res);
 
   count = res[0].split(":")[1];
-  matrix = res[1].split(":")[1];
-  Th = res[2].split(":")[1];
-  init = res[3].split(":")[1];
-  mem = res[4].split(":")[1];
-  disc = res[5].split(":")[1];
-  st = res[6].split(":")[1];
   iter = res[7].split(":")[1];
   
   console.log(iter)
   document.getElementById('cellCount').value = count;
   document.getElementById('iterCount').value = iter;
 
-  // cnt = document.createElement('div')
+  nameId = ['matrix_str1','Th_str1','init_str1','mem_str1','disc_str1', 'st1']
+  for (k = 1; k < 7; k++) {
+    newInput = document.createElement('input')
+    newInput.type = 'text'
+    newInput.name = nameId[k-1]
+    newInput.value = res[k].split(":")[1];
+    document.getElementById("section-content").appendChild(newInput);
+  }
+
+  // document.getElementById("section-content").appendChild(cnt);
   // cnt
 
   // $.ajax({

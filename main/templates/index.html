@@ -56,7 +56,13 @@
     >
       <h1>Исследование сетей MIMO-агентов</h1>
     </header>
-    <form class="page" method="POST" action="" id="formId" enctype="multipart/form-data">
+    <form
+      class="page"
+      method="POST"
+      action=""
+      id="formId"
+      enctype="multipart/form-data"
+    >
       {% csrf_token %}
       <div class="section-content" id="section-content">
         <section class="section-inputNumber">
@@ -84,9 +90,10 @@
               <select
                 class="form-select form-select-sm"
                 aria-label=".form-select-sm example"
+                name="graphOptions"
               >
-                <option value="Полный граф">Полный граф</option>
-                <option selected value="Граф ЭР">Граф ЭР</option>
+                <option value="СompleteGraph">Полный граф</option>
+                <option selected value="ERGraph">Граф ЭР</option>
               </select>
             </div>
           </div>
@@ -102,11 +109,23 @@
               class="form-control form-control-sm"
               value="Обзор..."
               name="flop"
-              id = "flop"
+              id="flop"
               onchange="readFile(this)"
             />
-            <!-- <p><input type="checkbox" name="checkboxSave">Сохранить данные</p> -->
-            <label for="l_box1"><input type="radio" name="checkboxSave" value="saveBox" id="l_box1">Сохранить данные</label>
+
+          </div>
+          <div class="svBox">
+            <label for="l_box1"
+              ><input
+                class="form-check-input"
+                type="radio"
+                name="checkboxSave"
+                value="saveBox"
+                id="l_box1"
+              />Сохранить данные</label
+            >
+          </div>
+          <div id="checkbox-section" class="checkbox-section">
           </div>
         </section>
         <section
@@ -148,7 +167,7 @@
           <div class="graph-outPut" id="graph-outPut" style="display: none">
             <h2>График поведения сети</h2>
             <div class="graph-img" id="output">{{data|safe}}</div>
-            <div id = "main"></div>
+            <div id="main"></div>
             <!-- <div class="textOutout" id="textOut">
               <table
                 class="table table-bordered table-hover table-striped table-prt"

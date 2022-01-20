@@ -4,7 +4,9 @@ from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, render
 import requests
 import random as ran
+import random2
 import numpy as np
+from random import randint
 import matplotlib.pyplot as plt
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter, AutoMinorLocator)
 from matplotlib.collections import LineCollection
@@ -38,11 +40,7 @@ def index(request):
     net = {}
 
     if request.method == 'POST':
-        n = int(request.POST['count'])
-
-        # top = request.POST.get('matrix')  
-        # print(top)
-        
+        n = int(request.POST['count'])      
         
         try: 
             flS = request.POST['checkboxSave']
@@ -50,16 +48,47 @@ def index(request):
         except:
             flagSave = False
 
-
-        #Полный граф
-        for i in range(n):
-            g = []
-            for j in range(n):
-                if (i != j) :
-                    g.append(1)
-                else:
-                    g.append(0)
-            R.append(g)
+        #Проверка наличия флага на фиксацию параметров
+        try: 
+            m_str = request.POST['matrix_str']
+            matrix_str = request.POST['matrix_str1']
+            matrix = matrix_str[2:-2]
+            l = []
+            for i in matrix.split('], ['):
+                l.append([int(j) for j in i.split(', ')])
+            R = l            
+        except:
+            #Полный граф
+            if request.POST['graphOptions'] == 'СompleteGraph':
+                print('Hello!!!')
+                for i in range(n):
+                    g = []
+                    for j in range(n):
+                        if (i != j) :
+                            g.append(1)
+                        else:
+                            g.append(0)
+                    R.append(g)
+            elif request.POST['graphOptions'] == 'ERGraph':
+                print('Hello!')
+                values = [0, 1]
+                g = [ran.choices(values, weights=[0.2, 0.8], k = n) for y in range(n)]
+                for i in range(n):
+                    k = 0
+                    for j in range(n):
+                        if g[i][j] == 1:
+                            k = k + 1
+                    j = i
+                    for l in range(n):
+                        if g[l][j] == 1: 
+                            k = k + 1
+                    if k == 0:
+                        g[i][randint(0, (n/2)-1)] = 1
+                for i in range(n):
+                    for j in range(n):
+                        if i == j:
+                            g[i][j] = 0
+                R = g.copy()
 
         Th = []
         cnt = 0
