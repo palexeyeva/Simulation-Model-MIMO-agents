@@ -30,27 +30,80 @@ function openTab(tabName) {
 function showGraph() {
   return false;
 }
-// Функция автоматического заполнения 
+// Функция чтения файла 
 function readFile(input) {
+
   const selectedFile = input.files[0];
 
   let reader = new FileReader();
   reader.readAsText(selectedFile);
 
   reader.onload = function(){
-    console.log(reader.result);
     newDiv = document.createElement('div')
     newDiv.id = "txtInput";
     newDiv.className = "txtInput";
     newDiv.innerText = reader.result;
     document.getElementById("section-content").appendChild(newDiv);
+    interData();
   }
-
-
 }
 
 
+function interData(){
+  sc = document.getElementById("txtInput").innerText;
 
+  let res = sc.split("\n");
+  console.log(res);
+
+  let i = 0
+  while (!res[i].includes("mem")) {
+    i++
+  }
+
+  console.log(i);
+  res[3] += " ";
+
+  for (j = 4; j<i; j++) {
+    res[3] += res[j]
+  }
+  
+  res.splice(4, i-4);
+
+  console.log(res);
+
+  count = res[0].split(":")[1];
+  matrix = res[1].split(":")[1];
+  Th = res[2].split(":")[1];
+  init = res[3].split(":")[1];
+  mem = res[4].split(":")[1];
+  disc = res[5].split(":")[1];
+  st = res[6].split(":")[1];
+  iter = res[7].split(":")[1];
+  
+  console.log(iter)
+  document.getElementById('cellCount').value = count;
+  document.getElementById('iterCount').value = iter;
+
+  // cnt = document.createElement('div')
+  // cnt
+
+  // $.ajax({
+  //     url: 'http://127.0.0.1:8000/',
+  //     type: 'POST',
+  //     data: {
+  //       'matrix': matrix, 
+  //       'Th': Th, 
+  //       'init': init, 
+  //       'mem': mem, 
+  //       'disc': disc, 
+  //       'st': st, 
+  //     },
+
+  //     success: function (data) {
+  //     location.reload(true)
+  //   }
+  // });
+}
 
 
 

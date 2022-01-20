@@ -38,11 +38,17 @@ def index(request):
     net = {}
 
     if request.method == 'POST':
-        n = int(request.POST['count'])    
-        flop = request.FILES.get('flop')
-        print(flop)
+        n = int(request.POST['count'])
 
-
+        # top = request.POST.get('matrix')  
+        # print(top)
+        
+        
+        try: 
+            flS = request.POST['checkboxSave']
+            flagSave = True
+        except:
+            flagSave = False
 
 
         #Полный граф
@@ -54,14 +60,12 @@ def index(request):
                 else:
                     g.append(0)
             R.append(g)
-        # print(R)
 
         Th = []
         cnt = 0
         while cnt < n:
             Th.append(randNormal(1))
             cnt += 1
-        # print(Th)
 
         for i in range(n):
             disc.append(1)
@@ -92,7 +96,8 @@ def index(request):
             'init': init,
             'mem': mem,
             'disc': disc,
-            'st': st
+            'st': st, 
+            'iter': iter
         }
 
         prt = {
@@ -224,16 +229,15 @@ def index(request):
                 for dic in prop:
                     g.append(dic[i])
                 y.append(g)
-            print('---', y)
+            # print('---', y)
 
             y.append(y.pop(0))
-            print(y)
+            # print(y)
 
             #построение графика
-            mycolors = [ 'tab:blue', 'tab:green', 'tab:red', 'tab:orange', 'tab:brown', 'tab:grey']
+            mycolors = ['tab:blue', 'tab:green', 'tab:red', 'tab:orange', 'tab:brown', 'tab:grey']
             labs = [f"Тип активности {i+1}" for i in range(actType-1)]
             labs.append('Не активен')
-            print(labs)
 
             plt.stackplot(x, y, labels=labs, colors=mycolors, alpha=0.8)
             plt.legend(fontsize=10, ncol=4)
@@ -254,6 +258,11 @@ def index(request):
             p = zip(prt['t'], prt['state'], prt['iner'])
             
             fl = int(0)
+        
+        if flagSave:
+            with open("out.txt", 'w') as out:
+                for key,val in net.items():
+                    out.write('{}:{}\n'.format(key,val))
 
 
     imgdata = BytesIO()
@@ -268,6 +277,8 @@ def index(request):
         'data': data,
         'prt': p
     }  
+
+
 
     return render(request, 'index.html', context)
 
