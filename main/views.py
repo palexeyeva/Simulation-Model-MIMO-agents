@@ -60,7 +60,6 @@ def index(request):
         except:
             #Полный граф
             if request.POST['graphOptions'] == 'СompleteGraph':
-                print('Hello!!!')
                 for i in range(n):
                     g = []
                     for j in range(n):
@@ -70,7 +69,6 @@ def index(request):
                             g.append(0)
                     R.append(g)
             elif request.POST['graphOptions'] == 'ERGraph':
-                print('Hello!')
                 values = [0, 1]
                 g = [ran.choices(values, weights=[0.2, 0.8], k = n) for y in range(n)]
                 for i in range(n):
@@ -89,31 +87,73 @@ def index(request):
                         if i == j:
                             g[i][j] = 0
                 R = g.copy()
+        # print(R)
+        #Проверка на фиксацию порогов
+        try:
+            T_str = request.POST['Th_str']
+            Th_str = request.POST['Th_str1']
+            Th = Th_str[1:-1]
+            Th = [float(i) for i in Th.split(', ')]
+        except:
+            Th = []
+            cnt = 0
+            while cnt < n:
+                Th.append(randNormal(20))
+                cnt += 1
+        # print(Th)
 
-        Th = []
-        cnt = 0
-        while cnt < n:
-            Th.append(randNormal(1))
-            cnt += 1
+        #Проверка на фиксацию начального состояния сети
+        try:
+            i_str = request.POST['init_str']
+            init_str = request.POST['init_str1']
+            init = init_str[1:-2]
+            init =[int(i) for i in init.split(' ')]
+        except:
+            init = np.random.randint(0, 3, n)            
+        # print(init)
 
-        for i in range(n):
-            disc.append(1)
-        for i in range(n):
-            mem.append(1)
+        #Проверка на фиксацию глубины памяти        
+        try:
+            me_str = request.POST['mem_str']
+            mem_str = request.POST['mem_str1']
+            mem = mem_str[1:-1]
+            mem = [int(i) for i in mem.split(', ')]
+        except:
+            for i in range(n):
+                mem.append(1)
+            # mem = np.random.randint(1, 4, n)  
+        
+        #Проверка на фиксацию коэф. дисконтирования
+        try:
+            d_str = request.POST['disc_str']
+            disc_str = request.POST['disc_str1']
+            disc = disc_str[1:-1]
+            disc = [int(i) for i in disc.split(', ')]
+        except:
+            for i in range(n):
+                disc.append(1)
+            # disc = np.random.uniform(0, 1, n)
 
-        #начальное состояние сети
-        init = np.random.randint(0, 3, n)
-
-        for i in range(n):
-            g = []
-            x = np.random.uniform(0, 1, 2)
-            p1 = x[0]
-            p2 = x[1]
-            p_sum = p1+p2
-            p1 = p1/p_sum
-            p2 = p2/p_sum
-            g = [p1, p2]
-            st.append(g)
+        #Проверка на фиксацию стохастического вектора
+        try:
+            s_str = request.POST['st_str']
+            st_str = request.POST['st_str1']
+            st = st_str[2:-2]
+            l = []
+            for i in st.split('], ['):
+                l.append([float(j) for j in i.split(', ')])
+            st = l
+        except:
+            for i in range(n):
+                g = []
+                x = np.random.uniform(0, 1, 2)
+                p1 = x[0]
+                p2 = x[1]
+                p_sum = p1+p2
+                p1 = p1/p_sum
+                p2 = p2/p_sum
+                g = [p1, p2]
+                st.append(g)     
         # print(st)
 
         iter = int(request.POST['iter'])
