@@ -42,7 +42,7 @@ def index(request):
     if request.method == 'POST':
         n = int(request.POST['count'])      
         
-        cntType = 3
+        cntType = int(request.POST['cntType'])
 
         try: 
             flS = request.POST['checkboxSave']
@@ -146,18 +146,36 @@ def index(request):
                 l.append([float(j) for j in i.split(', ')])
             st = l
         except:
-            for i in range(n):
-                g = []
-                p = []
-                p_sum = 0
-                x = np.random.uniform(0, 1, cntType)
-                for j in range(cntType):
-                    p.append(x[j])
-                    p_sum += x[j]
-                for k in range(cntType):
-                    g.append(p[k]/p_sum)
-                
-                st.append(g)     
+            if request.POST['vectOptions'] == 'Uniform':
+                for i in range(n):
+                    g = []
+                    p = []
+                    p_sum = 0
+                    x = np.random.uniform(0, 1, cntType)
+                    for j in range(cntType):
+                        p.append(x[j])
+                        p_sum += x[j]
+                    for k in range(cntType):
+                        g.append(p[k]/p_sum)                
+                    st.append(g)   
+            elif request.POST['vectOptions'] == 'Beta':
+                 for i in range(n):
+                    g = []
+                    p = []
+                    y = []
+                    p_sum = 0
+                    for j in range(cntType):                        
+                        h = ran.betavariate(0.1, 0.1)
+                        while h < 0.1 or h >1:
+                            h = ran.betavariate(0.1, 0.1)
+                        y.append(h)
+                    for j in range(cntType):
+                        p.append(y[j])
+                        p_sum += y[j]
+                    for k in range(cntType):
+                        g.append(p[k]/p_sum)                
+                    st.append(g) 
+
         # print(st)
 
         iter = int(request.POST['iter'])
@@ -170,7 +188,8 @@ def index(request):
             'mem': mem,
             'disc': disc,
             'st': st, 
-            'iter': iter
+            'iter': iter, 
+            'cntType': cntType
         }
 
         prt = {

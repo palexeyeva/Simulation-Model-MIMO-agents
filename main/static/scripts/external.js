@@ -106,10 +106,12 @@ function interData(){
 
   count = res[0].split(":")[1];
   iter = res[7].split(":")[1];
-  
+  cntType = res[8].split(":")[1];
+
   console.log(iter)
   document.getElementById('cellCount').value = count;
   document.getElementById('iterCount').value = iter;
+  document.getElementById('cntType').value = cntType;
 
   nameId = ['matrix_str1','Th_str1','init_str1','mem_str1','disc_str1', 'st_str1']
   for (k = 1; k < 7; k++) {

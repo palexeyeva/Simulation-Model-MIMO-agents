@@ -124,11 +124,11 @@
               />Сохранить данные</label
             >
           </div>
-          <div id="checkbox-section" class="checkbox-section"></div>
+          
           <div class="additional-choice">
             <div class="type-count__inp">
               <p>Количество типов активности</p>
-              <input type="number" name="cntType" />
+              <input type="number" name="cntType" id="cntType" />
             </div>
             <div class="distrip__inp">
               <p>Вид распределения для стохастического вектора</p>
@@ -136,12 +136,15 @@
                 class="form-select form-select-sm"
                 aria-label=".form-select-sm example"
                 name="vectOptions"
+                id = "vectOptions"
               >
-                <option selected value="first">1</option>
-                <option value="second">2</option>
+                <option selected value="Uniform">Равномерное распределение</option>
+                <option value="Beta">Бета-распределение</option>
               </select>
             </div>
+            
           </div>
+          <div id="checkbox-section" class="checkbox-section"></div>
         </section>
         <section
           class="section__inputData"
