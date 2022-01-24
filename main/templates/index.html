@@ -92,8 +92,8 @@
                 aria-label=".form-select-sm example"
                 name="graphOptions"
               >
-                <option value="СompleteGraph">Полный граф</option>
-                <option selected value="ERGraph">Граф ЭР</option>
+                <option selected value="СompleteGraph">Полный граф</option>
+                <option value="ERGraph">Граф ЭР</option>
               </select>
             </div>
           </div>
@@ -112,7 +112,6 @@
               id="flop"
               onchange="readFile(this)"
             />
-
           </div>
           <div class="svBox">
             <label for="l_box1"
@@ -125,7 +124,23 @@
               />Сохранить данные</label
             >
           </div>
-          <div id="checkbox-section" class="checkbox-section">
+          <div id="checkbox-section" class="checkbox-section"></div>
+          <div class="additional-choice">
+            <div class="type-count__inp">
+              <p>Количество типов активности</p>
+              <input type="number" name="cntType" />
+            </div>
+            <div class="distrip__inp">
+              <p>Вид распределения для стохастического вектора</p>
+              <select
+                class="form-select form-select-sm"
+                aria-label=".form-select-sm example"
+                name="vectOptions"
+              >
+                <option selected value="first">1</option>
+                <option value="second">2</option>
+              </select>
+            </div>
           </div>
         </section>
         <section
@@ -168,27 +183,6 @@
             <h2>График поведения сети</h2>
             <div class="graph-img" id="output">{{data|safe}}</div>
             <div id="main"></div>
-            <!-- <div class="textOutout" id="textOut">
-              <table
-                class="table table-bordered table-hover table-striped table-prt"
-                id="tblID"
-              >
-                <thead>
-                  <tr>
-                    <th scope="col">Time</th>
-                    <th scope="col">External Network State</th>
-                    <th scope="col">Internal Network State</th>
-                  </tr>
-                  {%for t, s, i in prt%}
-                  <tr>
-                    <th scope="row">{{t}}</th>
-                    <th scope="row">{{s}}</th>
-                    <th scope="row">{{i}}</th>
-                  </tr>
-                  {%endfor%}
-                </thead>
-              </table>
-            </div> -->
           </div>
           <div class="buttons" id="btns" style="display: none">
             <a

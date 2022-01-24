@@ -42,6 +42,8 @@ def index(request):
     if request.method == 'POST':
         n = int(request.POST['count'])      
         
+        cntType = 3
+
         try: 
             flS = request.POST['checkboxSave']
             flagSave = True
@@ -98,7 +100,7 @@ def index(request):
             Th = []
             cnt = 0
             while cnt < n:
-                Th.append(randNormal(20))
+                Th.append(randNormal(1))
                 cnt += 1
         # print(Th)
 
@@ -109,7 +111,7 @@ def index(request):
             init = init_str[1:-2]
             init =[int(i) for i in init.split(' ')]
         except:
-            init = np.random.randint(0, 3, n)            
+            init = np.random.randint(0, cntType + 1, n)            
         # print(init)
 
         #Проверка на фиксацию глубины памяти        
@@ -146,13 +148,15 @@ def index(request):
         except:
             for i in range(n):
                 g = []
-                x = np.random.uniform(0, 1, 2)
-                p1 = x[0]
-                p2 = x[1]
-                p_sum = p1+p2
-                p1 = p1/p_sum
-                p2 = p2/p_sum
-                g = [p1, p2]
+                p = []
+                p_sum = 0
+                x = np.random.uniform(0, 1, cntType)
+                for j in range(cntType):
+                    p.append(x[j])
+                    p_sum += x[j]
+                for k in range(cntType):
+                    g.append(p[k]/p_sum)
+                
                 st.append(g)     
         # print(st)
 
@@ -190,83 +194,83 @@ def index(request):
         fl = 1
         t = 1
         state = initial.copy()
-        curMem1 = list()
-        curMem2 = list()
+
+        curMem = []
+
         for i in range(n):
-            b = np.ones((memory[i], 2)) 
-            c = np.ones((memory[i], 2)) 
-            curMem1.append(b)
-            curMem2.append(c)
+            b = np.ones((memory[i], cntType))
+            curMem.append(b)
         for i in range(n):
             for j in range(memory[i]): 
-                for k in range(int(2)):
-                    curMem1[i][j][k] = curMem1[i][j][k]*0
-                    curMem2[i][j][k] = curMem2[i][j][k]*0
+                for k in range(cntType):
+                    curMem[i][j][k] = curMem[i][j][k]*0
+
         
-        # print('Состояние сети для t = 0:', initial)
         while fl == 1:
             step = 0
             while step < iter:
-                e = [0, 0]
-                sum1 = 0
-                sum2 = 0
+
+                e = []
+                e = np.zeros(cntType)
+                sumAct = np.zeros(cntType) 
                 for j in range(n):
                     flag = 0
                     for i in range(n):
-                        if initial[i] == 1:
-                            e[0] = e[0] + p[j][0] * R[i][j] 
-                        elif initial[i] == 2:
-                            e[1] = e[1] + p[j][1] * R[i][j]
-                        s = e[0] + e[1] #new
+                        if initial[i] > 0:
+                            u = initial[i] - 1
+                            e[u] = e[u] + p[j][u] * R[i][j]
+
+                    curMem[j][0][initial[j] - 1] += e[initial[j] - 1]
+
                     for i in range(memory[j]):
-                        curMem1[j][i][0] = curMem1[j][i][1]
-                        curMem2[j][i][0] = curMem2[j][i][1]
-                    curMem1[j][0][1] = curMem1[j][0][1] * 0
-                    curMem2[j][0][1] = curMem2[j][0][1] * 0
-                    curMem1[j][0][1] += e[0]
-                    curMem2[j][0][1] += e[1]
-                    for i in range(memory[j]): 
                         if i + 2 <= memory[j] and memory[j] != 1:
-                            curMem1[j][i + 1][1] = curMem1[j][i][0] * discount[j]
-                            curMem2[j][i + 1][1] = curMem2[j][i][0] * discount[j]
+                            for k in range(cntType):
+                                curMem[j][i+1][k] = curMem[j][i+1][k] * discount[j]
                     if memory[j] == 1:
-                        sum1 = e[0]
-                        sum2 = e[1]
-                    else: 
+                        for i in range(cntType):
+                            sumAct[i] = e[i]
+                    else:
                         for i in range(memory[j]):
-                            sum1 += curMem1[j][i][1]
-                            sum2 += curMem2[j][i][1]
-                    if sum1+sum2 >= Th[j] and sum1 > sum2:
-                        state[j] = 1
+                            for k in range(cntType):
+                                sumAct[k] += curMem[j][i][k]
+                    
+                    #условия активации агента
+                    for k in range(cntType):
+                        flA = 0
+                        for i in range(cntType):
+                            if sumAct[k] == sumAct[i]:
+                                flA += 1
+                    if np.sum(sumAct) >= Th[j] and flA != cntType:
+                        state[j] = np.argmax(sumAct) + 1
                         flag = 1
-                    elif sum1+sum2 >=Th[j] and sum2 > sum1:
-                        state[j] = 2
-                        flag = 1
-                    elif sum1+sum2 >= Th[j] and sum1 == sum2:
-                        if p[j][0] > p[j][1]:
-                            state[j] = 1
+                    elif np.sum(sumAct) >= Th[j] and flA == cntType:
+                        for k in range(cntType):
+                            flP = 0
+                            for i in range(cntType):
+                                if p[j][k] == p[j][i]:
+                                    flP += 1
+                        if flP < cntType:
+                            state[j] = p[j].index(max(p[j])) + 1
                             flag = 1
-                        elif p[j][0] < p[j][1]:
-                            state[j] = 2
+                        else:
+                            state[j] = ran.randint(1, cntType)
                             flag = 1
-                        elif p[j][0] == p[j][1]:
-                            state[j] = ran.randint(1, 2)
-                    elif (e[0] == e[1] and e[0] == 0) or (e[0]+e[1] < Th[j]):
+                    else:
                         state[j] = 0
-                    # print('Внутреннее состояние агента', j, ': (', sum1, ', ', sum2, ')')
-                    inerState[j].append([sum1, sum2])
-                    e = [0, 0]
-                    sum1 = 0    
-                    sum2 = 0
+
+                    inerState[j].append(sumAct)
+                    e = []
+                    e = np.zeros(cntType)
+                    sumAct = []
+                    sumAct = np.zeros(cntType) 
                     if flag == 1:
-                        for i in range(memory[j]):
-                            for k in range(int(2)):
-                                curMem1[j][i][k] = curMem1[j][i][k] * 0
-                                curMem2[j][i][k] = curMem2[j][i][k] * 0
+                        for i in range(n):
+                            for j in range(memory[i]): 
+                                for k in range(cntType):
+                                    curMem[i][j][k] = curMem[i][j][k]*0
+
                 initial = state.copy()
                 plotState.append(initial)
-                # print('-------Внешнее состояние сети для t =', t,':', initial, '-------')
-
                 prt['t'].append(t)
                 prt['state'].append(initial)
 
@@ -283,29 +287,27 @@ def index(request):
             for i in plotState:
                 tot_el = 0
                 d = {}
-                for j in range(actType):
+                for j in range(cntType+1):
                     d[j] = 0
                 for j in i:
-                    d[j] = d[j] + 1
+                    d[j] += 1
                     tot_el += 1
                 for j in d: 
                     d[j] = d[j] / tot_el
                 prop.append(d)
 
             y = []
-            for i in range(actType):
+            for i in range(cntType+1):
                 g = []
                 for dic in prop:
                     g.append(dic[i])
                 y.append(g)
-            # print('---', y)
 
             y.append(y.pop(0))
-            # print(y)
 
             #построение графика
-            mycolors = ['tab:blue', 'tab:green', 'tab:red', 'tab:orange', 'tab:brown', 'tab:grey']
-            labs = [f"Тип активности {i+1}" for i in range(actType-1)]
+            mycolors = ['tab:blue', 'tab:green', 'tab:pink', 'tab:red', 'tab:grey', 'tab:orange', 'tab:brown']
+            labs = [f"Тип активности {i+1}" for i in range(cntType)]
             labs.append('Не активен')
 
             plt.stackplot(x, y, labels=labs, colors=mycolors, alpha=0.8)
@@ -350,66 +352,3 @@ def index(request):
 
 
     return render(request, 'index.html', context)
-
-
-        # init_new = {}
-        #     g = []
-        #     for i in range(n):
-        #         for j in range(t):
-        #             g.append(plotState[j][i])
-        #         init_new[str(i)] = g.copy()
-        #         g = []
-        #     timePeriod = [f"t{i}" for i in range(t)]
-        #     activeType = ["0", " ", " "]
-        #     nr = int(3 * n)
-        #     gs = gridspec.GridSpec(ncols = 2, nrows = nr , figure=fig)
-        #     tx = {}
-        #     xtick = [i for i in range(t)]
-        #     ytick = [0, 1, 2]
-        #     width = 0.3
-        #     x = np.arange(t)
-        #     ax = {}
-        #     for i in range(n):
-        #         h1 = list()
-        #         h2 = list()
-        #         for k in range(t):
-        #             if init_new[str(i)][k] == 0:
-        #                 h1.append(int(0))
-        #                 h2.append(int(0))
-        #             elif init_new[str(i)][k] == 1:
-        #                 h1.append(int(1))
-        #                 h2.append(int(0))
-        #             elif init_new[str(i)][k] == 2:
-        #                 h1.append(int(0))
-        #                 h2.append(int(1))
-        #         tx[str(i)] = fig.add_subplot(gs[i, :])
-        #         tx[str(i)].set_xticks(xtick)
-        #         tx[str(i)].set_yticks(ytick)
-        #         tx[str(i)].set_yticklabels(activeType)
-        #         tx[str(i)].bar(x, h1, width, label='Активности типа 1')
-        #         tx[str(i)].bar(x, h2, width, label='Активность типа 2') 
-        #         tx[str(i)].legend(bbox_to_anchor=(1, 0.6))
-        #         tx[str(i)].set_xticklabels(timePeriod)
-        #         tx[str(i)].set_title('Внешнее состояние агента №' + str(i+1))
-        
-        #     for i in range(n):
-        #         g1 = list()
-        #         g2 = list()
-        #         T = list()
-        #         count = 0
-        #         for k in range(t):
-        #             g1.append(inerState[i][k][0])
-        #             g2.append(inerState[i][k][1])
-        #             T.append(Th[i])
-        #         if i % 2 == 0:
-        #             ax[str(i)] = fig.add_subplot(gs[n + i - count:n + i - count + 2  , 0])
-        #         else: 
-        #             count = count + 2
-        #             ax[str(i)] = fig.add_subplot(gs[n + i - count + 1:n + i - count + 3 , 1])
-        #         ax[str(i)].plot(g1, lw = 2, label = 'Активности типа 1', marker = 'o')
-        #         ax[str(i)].plot(g2, lw = 2, label = 'Активность типа 2', marker = 'o')
-        #         line = ax[str(i)].plot(x, T, linestyle = '--', color = 'grey', lw = 0.7)
-        #         ax[str(i)].set_title('Внутреннее состояние агента №'+ str(i+1))
-        #         ax[str(i)].set_xticks(x)
-        #         ax[str(i)].set_xticklabels(timePeriod)
-        #         ax[str(i)].legend()
