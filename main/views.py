@@ -16,6 +16,9 @@ import io
 from io import *
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 import base64
+import itertools
+import plotly.graph_objects as go
+import networkx as nx
 
 import scipy.stats as ss
 
@@ -26,6 +29,33 @@ def index(request):
         x = m*np.random.randn(1)
         return(x[0] if x[0]>=0 else randNormal(m))   
 
+
+    def random_graph(n, p) -> nx.DiGraph:
+        graph = nx.DiGraph()
+
+        N_range = range(n)
+        graph.add_nodes_from(N_range)
+
+        for pair in itertools.permutations(N_range, 2):
+            if ran.random() < p:
+                graph.add_edge(*pair)
+        return graph
+
+    def getGraph(n, R):
+        graph = nx.DiGraph()
+
+        N_range = range(n)
+        graph.add_nodes_from(N_range)
+
+        for i in range(n):
+            for j in range(n):
+                if R[i][j] > 0:
+                    graph.add_edge(i,j) 
+
+        return graph
+
+
+
     n = 0
     R = []
     Th = []
@@ -33,11 +63,13 @@ def index(request):
     disc = []
     init = []
     st = []
-    fig = plt.figure(figsize=(10, 10), constrained_layout = True)
     iter = 0
     prt = {}
     p = []
     net = {}
+    
+    fig = plt.figure(figsize=(10, 15), constrained_layout = True)
+    
 
     if request.method == 'POST':
         n = int(request.POST['count'])      
@@ -100,7 +132,7 @@ def index(request):
             Th = []
             cnt = 0
             while cnt < n:
-                Th.append(randNormal(1))
+                Th.append(randNormal(30))
                 cnt += 1
         # print(Th)
 
@@ -325,15 +357,62 @@ def index(request):
             y.append(y.pop(0))
 
             #построение графика
+
+            cntGraph = 8 #количество графов
+            iterStop = 2 #шаг остановки 
+
+            ind = (cntGraph / 2) + 1
+            ax_1 = fig.add_subplot(ind, 1, 1)
+            # ax_2 = fig.add_subplot(2, 1, 2)
+
+            # ax_2 = plt.gca()
+
+            # indexStop = 0
+            G = getGraph(n, R)
+            ax = {}
+            colors = []
+
+            it = 0
+
+            def colorGen(indexStop, plotState):
+                clrId = []
+                colors = []
+                for i in range(n):
+                    clrId.append(plotState[indexStop][i])
+
+                clrDate = ['r', 'b', 'g', 'Pink', 'Orange', 'Brown']
+                
+                for i in range(n):
+                    colors.append(clrDate[clrId[i]])   
+                # print(colors)
+                
+                return colors      
+        
+
+            # temp = colorGen(10, plotState)
+            # print(temp)
+
+            for i in range(cntGraph):
+                ax[str(i)] = fig.add_subplot(ind, 2, i+3)
+                ax[str(i)] = plt.gca()
+                temp = colorGen(it, plotState)
+                it += iterStop
+                # print(temp)
+                ax[str(i)] = nx.draw(G, node_size = 400, font_weight='bold', node_color=temp)
+
+
+            # ax_2 = nx.draw(G, node_size = 400, font_weight='bold', node_color=colors)
+
             mycolors = ['tab:blue', 'tab:green', 'tab:pink', 'tab:red', 'tab:grey', 'tab:orange', 'tab:brown']
             labs = [f"Тип активности {i+1}" for i in range(cntType)]
             labs.append('Не активен')
 
-            plt.stackplot(x, y, labels=labs, colors=mycolors, alpha=0.8)
-            plt.legend(fontsize=10, ncol=4)
-            plt.xlim(x[0], x[-1])
-            plt.xlabel('Такт')
-            plt.ylabel('Доля')
+            
+            ax_1.set_xlim(x[0], x[-1])
+            ax_1.set_xlabel('Такт')
+            ax_1.set_ylabel('Доля')
+            ax_1.stackplot(x, y, labels=labs, colors=mycolors, alpha=0.8)
+            ax_1.legend(fontsize=10, ncol=4)
 
             iSt = []
             for k in range(int(t)):
@@ -353,7 +432,6 @@ def index(request):
             with open("out.txt", 'w') as out:
                 for key,val in net.items():
                     out.write('{}:{}\n'.format(key,val))
-
 
     imgdata = BytesIO()
     fig.savefig(imgdata, format='png', bbox_inches='tight')
