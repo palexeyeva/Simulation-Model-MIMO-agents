@@ -143,7 +143,15 @@ def index(request):
             init = init_str[1:-2]
             init =[int(i) for i in init.split(' ')]
         except:
-            init = np.random.randint(0, cntType + 1, n)            
+            # init = np.random.randint(0, cntType + 1, n) 
+            propN = int(n/3)
+            for i in range(propN): 
+                init.append(1)
+            for i in range(n - propN):
+                init.append(2)
+        print(init)
+
+
         # print(init)
 
         #Проверка на фиксацию глубины памяти        
@@ -207,6 +215,38 @@ def index(request):
                     for k in range(cntType):
                         g.append(p[k]/p_sum)                
                     st.append(g) 
+            elif request.POST['vectOptions'] == 'Prop' :
+                propN = int(n/3)
+                for i in range(propN):
+                    g = []
+                    p = []
+                    y = []
+                    p_sum = 0
+
+                    h = ran.betavariate(0.1, 0.1)
+                    while h < 0.1 or h >1 or h < 0.4:
+                        h = ran.betavariate(0.1, 0.1)
+                    g.append(h)
+                    g.append(1-h)
+
+                    st.append(g) 
+                    
+                for i in range(n - propN):
+                    g = []
+                    p = []
+                    y = []
+                    p_sum = 0
+                    h = ran.betavariate(0.1, 0.1)
+                    while h < 0.1 or h >1 or h > 0.6:
+                        h = ran.betavariate(0.1, 0.1)  
+                    g.append(h)
+                    g.append(1-h)
+                           
+
+
+                    st.append(g) 
+
+
 
         # print(st)
 
@@ -363,11 +403,7 @@ def index(request):
 
             ind = (cntGraph / 2) + 1
             ax_1 = fig.add_subplot(ind, 1, 1)
-            # ax_2 = fig.add_subplot(2, 1, 2)
 
-            # ax_2 = plt.gca()
-
-            # indexStop = 0
             G = getGraph(n, R)
             ax = {}
             colors = []
@@ -398,7 +434,7 @@ def index(request):
                 temp = colorGen(it, plotState)
                 it += iterStop
                 # print(temp)
-                ax[str(i)] = nx.draw(G, node_size = 400, font_weight='bold', node_color=temp)
+                ax[str(i)] = nx.draw(G, node_size = 400, font_weight='bold', node_color=temp, with_labels=True)
 
 
             # ax_2 = nx.draw(G, node_size = 400, font_weight='bold', node_color=colors)
