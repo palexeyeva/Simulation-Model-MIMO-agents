@@ -19,42 +19,135 @@ import base64
 import itertools
 import plotly.graph_objects as go
 import networkx as nx
-
 import scipy.stats as ss
+from networkx.generators.random_graphs import barabasi_albert_graph
+
+
+#Генерация нормального распределения
+def randNormal(m):
+    x = m*np.random.randn(1)
+    return(x[0] if x[0]>=0 else randNormal(m))   
+
+#Перевод матрицы к графу
+def getGraph(n, R):
+    graph = nx.DiGraph()
+
+    N_range = range(n)
+    graph.add_nodes_from(N_range)
+
+    for i in range(n):
+        for j in range(n):
+            if R[i][j] > 0:
+                graph.add_edge(i,j) 
+
+    return graph
+    
+#Генерация цветов графа
+def colorGen(indexStop, plotState, n):
+    clrId = []
+    colors = []
+    for i in range(n):
+        clrId.append(plotState[indexStop][i])
+    clrDate = ['r', 'b', 'g', 'Pink', 'Orange', 'Brown']
+    for i in range(n):
+        colors.append(clrDate[clrId[i]])   
+
+    return colors  
+
+def compliteGraph(n):
+    R = []
+    for i in range(n):
+        g = []
+        for j in range(n):
+            if (i != j) :
+                g.append(1)
+            else:
+                g.append(0)
+        R.append(g)
+
+    return R
+
+def ErdosRenyiGraph(n):
+    values = [0, 1]
+    g = [ran.choices(values, weights=[0.5, 0.5], k = n) for y in range(n)]
+    for i in range(n):
+        k = 0
+        for j in range(n):
+            if g[i][j] == 1:
+                k = k + 1
+        j = i
+        for l in range(n):
+            if g[l][j] == 1: 
+                k = k + 1
+        if k == 0:
+            g[i][randint(0, (n/2)-1)] = 1
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                g[i][j] = 0
+    return g
+
+def random_graphBA(n, p) -> nx.DiGraph:
+  graph = barabasi_albert_graph(n, p, seed=None, initial_graph=None)  
+
+  N_range = range(n)
+  graph.add_nodes_from(N_range)
+
+  return graph
+
+def BarabasiAlbertGraph(n):
+    G = random_graphBA(n, 2)
+    P = nx.convert_matrix.to_numpy_array(G)
+    R = []
+    for i in range(n):
+        g = []
+        for j in range(n):
+            g.append(int(P[i][j]))
+        R.append(g)
+
+    k = int(np.random.randint(n, (n*n/2), 1))
+    l = np.random.randint(0, n, k)
+    m = np.random.randint(0, n, k)
+    for i in range(k):
+        if l[i] != m[i]:
+            R[l[i]][m[i]] = 0
+    return R
+
+def twoCompliteGraphs(n):
+    count = int(n/2)
+
+    T = compliteGraph(count)
+    M = compliteGraph(n - count)
+
+    R = []
+
+    for i in range(n):
+        g = []
+        for j in range(n):
+            if j < count and i < count:
+                g.append(T[i][j])
+            elif j >= count and i >= count:
+                g.append(M[count - i][count - j])
+            else:
+                g.append(0)
+        R.append(g)
+
+    k = int(np.random.randint(count, n, 1))
+    l = int(np.random.randint(0, count, 1))
+    R[k][l] = 100
+    
+    i = 0
+    while i < count:        
+        if R[l][i] == 1:
+            R[l][i] = 100
+        i+=1
+    for i in range(n):
+        print(R[i])
+
+    return R
 
 
 def index(request):
-
-    def randNormal(m):
-        x = m*np.random.randn(1)
-        return(x[0] if x[0]>=0 else randNormal(m))   
-
-
-    def random_graph(n, p) -> nx.DiGraph:
-        graph = nx.DiGraph()
-
-        N_range = range(n)
-        graph.add_nodes_from(N_range)
-
-        for pair in itertools.permutations(N_range, 2):
-            if ran.random() < p:
-                graph.add_edge(*pair)
-        return graph
-
-    def getGraph(n, R):
-        graph = nx.DiGraph()
-
-        N_range = range(n)
-        graph.add_nodes_from(N_range)
-
-        for i in range(n):
-            for j in range(n):
-                if R[i][j] > 0:
-                    graph.add_edge(i,j) 
-
-        return graph
-
-
 
     n = 0
     R = []
@@ -67,6 +160,11 @@ def index(request):
     prt = {}
     p = []
     net = {}
+
+    idAgent = 8 #такт для добавления влиятельного агента
+    cntGraph = 12 #количество графов
+    iterStop = 1 #шаг остановки 
+    
     
     fig = plt.figure(figsize=(10, 15), constrained_layout = True)
     
@@ -92,36 +190,28 @@ def index(request):
                 l.append([int(j) for j in i.split(', ')])
             R = l            
         except:
-            #Полный граф
             if request.POST['graphOptions'] == 'СompleteGraph':
-                for i in range(n):
-                    g = []
-                    for j in range(n):
-                        if (i != j) :
-                            g.append(1)
-                        else:
-                            g.append(0)
-                    R.append(g)
+                R = compliteGraph(n)
             elif request.POST['graphOptions'] == 'ERGraph':
-                values = [0, 1]
-                g = [ran.choices(values, weights=[0.2, 0.8], k = n) for y in range(n)]
-                for i in range(n):
-                    k = 0
-                    for j in range(n):
-                        if g[i][j] == 1:
-                            k = k + 1
-                    j = i
-                    for l in range(n):
-                        if g[l][j] == 1: 
-                            k = k + 1
-                    if k == 0:
-                        g[i][randint(0, (n/2)-1)] = 1
+                R = ErdosRenyiGraph(n)
+            elif request.POST['graphOptions'] == 'Influential':
+                R = ErdosRenyiGraph(n)
                 for i in range(n):
                     for j in range(n):
-                        if i == j:
-                            g[i][j] = 0
-                R = g.copy()
-        # print(R)
+                        if j == n-1 or i == n-1:
+                            R[i][j] = 0
+            elif request.POST['graphOptions'] == 'BAGraph':
+                R = BarabasiAlbertGraph(n)
+            elif request.POST['graphOptions'] == 'TwoComplGraph':
+                R = twoCompliteGraphs(n)
+
+        initR = []
+        for i in range(n):
+            g = []
+            for j in range(n):
+                    g.append(R[i][j])                
+            initR.append(g)
+
         #Проверка на фиксацию порогов
         try:
             T_str = request.POST['Th_str']
@@ -132,9 +222,8 @@ def index(request):
             Th = []
             cnt = 0
             while cnt < n:
-                Th.append(randNormal(30))
+                Th.append(randNormal(1))
                 cnt += 1
-        # print(Th)
 
         #Проверка на фиксацию начального состояния сети
         try:
@@ -143,16 +232,15 @@ def index(request):
             init = init_str[1:-2]
             init =[int(i) for i in init.split(' ')]
         except:
-            # init = np.random.randint(0, cntType + 1, n) 
-            propN = int(n/3)
-            for i in range(propN): 
-                init.append(1)
-            for i in range(n - propN):
-                init.append(2)
-        print(init)
+            if request.POST['vectOptions'] == 'Prop' :
+                propN = int(n/2)
+                for i in range(propN): 
+                    init.append(1)
+                for i in range(n - propN):
+                    init.append(2)
+            else:
+                init = np.random.randint(0, cntType + 1, n) 
 
-
-        # print(init)
 
         #Проверка на фиксацию глубины памяти        
         try:
@@ -216,7 +304,7 @@ def index(request):
                         g.append(p[k]/p_sum)                
                     st.append(g) 
             elif request.POST['vectOptions'] == 'Prop' :
-                propN = int(n/3)
+                propN = int(n/2)
                 for i in range(propN):
                     g = []
                     p = []
@@ -224,7 +312,7 @@ def index(request):
                     p_sum = 0
 
                     h = ran.betavariate(0.1, 0.1)
-                    while h < 0.1 or h >1 or h < 0.4:
+                    while h < 0.1 or h >0.9 or h < 0.4:
                         h = ran.betavariate(0.1, 0.1)
                     g.append(h)
                     g.append(1-h)
@@ -237,18 +325,12 @@ def index(request):
                     y = []
                     p_sum = 0
                     h = ran.betavariate(0.1, 0.1)
-                    while h < 0.1 or h >1 or h > 0.6:
+                    while h < 0.1 or h >0.9 or h > 0.6:
                         h = ran.betavariate(0.1, 0.1)  
                     g.append(h)
-                    g.append(1-h)
-                           
-
+                    g.append(1-h)                       
 
                     st.append(g) 
-
-
-
-        # print(st)
 
         iter = int(request.POST['iter'])
     
@@ -294,16 +376,27 @@ def index(request):
         for i in range(n):
             for j in range(memory[i]): 
                 for k in range(cntType):
-                    curMem[i][j][k] = curMem[i][j][k]*0
-
+                    curMem[i][j][k] = curMem[i][j][k]*0        
         
         while fl == 1:
             step = 0
             while step < iter:
-
+                # print("--------")
+                # print(step)
+                if idAgent == 8 and request.POST['graphOptions'] == 'Influential':
+                    for i in range(n):
+                        for j in range(n):
+                            # if i != j and (j == n-1 or i == n-1):
+                            if  i == n - 1:
+                                R[i][j] = 2
+                        # print(R[i])
+                    initial[n-1] = 2
+                    Th[n-1] = 0.1
+                    
                 e = []
                 e = np.zeros(cntType)
-                sumAct = np.zeros(cntType) 
+                sumAct = np.zeros(cntType)                 
+
                 for j in range(n):
                     flag = 0
                     for i in range(n):
@@ -311,12 +404,14 @@ def index(request):
                             u = initial[i] - 1
                             e[u] = e[u] + p[j][u] * R[i][j]
 
-                    curMem[j][0][initial[j] - 1] += e[initial[j] - 1]
+                   
+                    for i in range(cntType):
+                            curMem[j][0][i] += e[i]                    
 
                     for i in range(memory[j]):
                         if i + 2 <= memory[j] and memory[j] != 1:
                             for k in range(cntType):
-                                curMem[j][i+1][k] = curMem[j][i+1][k] * discount[j]
+                                curMem[j][i+1][k] = curMem[j][i][k] * discount[j]
                     if memory[j] == 1:
                         for i in range(cntType):
                             sumAct[i] = e[i]
@@ -324,6 +419,9 @@ def index(request):
                         for i in range(memory[j]):
                             for k in range(cntType):
                                 sumAct[k] += curMem[j][i][k]
+                    # print("3агент №", j)
+                    # for i in range(n):
+                    #     print("Внутреннее состояние", curMem[i][0])
                     
                     #условия активации агента
                     for k in range(cntType):
@@ -334,7 +432,11 @@ def index(request):
                     if np.sum(sumAct) >= Th[j] and flA != cntType:
                         state[j] = np.argmax(sumAct) + 1
                         flag = 1
+                        # print("1агент №", j)
+                        # print("Влияния", sumAct)
                     elif np.sum(sumAct) >= Th[j] and flA == cntType:
+                        # print("2агент №", j)
+                        # print("Влияния", sumAct)
                         for k in range(cntType):
                             flP = 0
                             for i in range(cntType):
@@ -348,8 +450,11 @@ def index(request):
                             flag = 1
                     else:
                         state[j] = 0
+                        # print("3агент №", j)
+                        # print("Влияния", sumAct)
 
                     inerState[j].append(sumAct)
+
                     e = []
                     e = np.zeros(cntType)
                     sumAct = []
@@ -374,7 +479,6 @@ def index(request):
             y = []
 
             #определение координат графика, доля типа
-            actType = 3
             for i in plotState:
                 tot_el = 0
                 d = {}
@@ -397,47 +501,32 @@ def index(request):
             y.append(y.pop(0))
 
             #построение графика
-
-            cntGraph = 8 #количество графов
-            iterStop = 2 #шаг остановки 
-
-            ind = (cntGraph / 2) + 1
+            ind = int((cntGraph / 2) + 1)
             ax_1 = fig.add_subplot(ind, 1, 1)
 
-            G = getGraph(n, R)
             ax = {}
             colors = []
+            it = 0 
 
-            it = 0
-
-            def colorGen(indexStop, plotState):
-                clrId = []
-                colors = []
-                for i in range(n):
-                    clrId.append(plotState[indexStop][i])
-
-                clrDate = ['r', 'b', 'g', 'Pink', 'Orange', 'Brown']
-                
-                for i in range(n):
-                    colors.append(clrDate[clrId[i]])   
-                # print(colors)
-                
-                return colors      
-        
-
-            # temp = colorGen(10, plotState)
-            # print(temp)
+            if request.POST['graphOptions'] == 'Influential':    
+                G = getGraph(n-1, initR)
+            else:
+                G = getGraph(n, R)
 
             for i in range(cntGraph):
+                if it < idAgent and request.POST['graphOptions'] == 'Influential':    
+                    G = getGraph(n-1, initR)
+                    temp = colorGen(it, plotState, n-1)
+                else:
+                    G = getGraph(n, R)
+                    temp = colorGen(it, plotState, n)
                 ax[str(i)] = fig.add_subplot(ind, 2, i+3)
                 ax[str(i)] = plt.gca()
-                temp = colorGen(it, plotState)
+                
                 it += iterStop
-                # print(temp)
                 ax[str(i)] = nx.draw(G, node_size = 400, font_weight='bold', node_color=temp, with_labels=True)
 
 
-            # ax_2 = nx.draw(G, node_size = 400, font_weight='bold', node_color=colors)
 
             mycolors = ['tab:blue', 'tab:green', 'tab:pink', 'tab:red', 'tab:grey', 'tab:orange', 'tab:brown']
             labs = [f"Тип активности {i+1}" for i in range(cntType)]
@@ -481,7 +570,5 @@ def index(request):
         'data': data,
         'prt': p
     }  
-
-
 
     return render(request, 'index.html', context)
