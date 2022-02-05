@@ -21,7 +21,7 @@ import plotly.graph_objects as go
 import networkx as nx
 import scipy.stats as ss
 from networkx.generators.random_graphs import barabasi_albert_graph
-
+from networkx.generators.random_graphs import watts_strogatz_graph
 
 #Генерация нормального распределения
 def randNormal(m):
@@ -38,7 +38,8 @@ def getGraph(n, R):
     for i in range(n):
         for j in range(n):
             if R[i][j] > 0:
-                graph.add_edge(i,j) 
+                graph.add_edge(i,j)
+                 
 
     return graph
     
@@ -48,7 +49,7 @@ def colorGen(indexStop, plotState, n):
     colors = []
     for i in range(n):
         clrId.append(plotState[indexStop][i])
-    clrDate = ['r', 'b', 'g', 'Pink', 'Orange', 'Brown']
+    clrDate = ['Pink', 'b', 'g','r' , 'Orange', 'Brown']
     for i in range(n):
         colors.append(clrDate[clrId[i]])   
 
@@ -95,8 +96,7 @@ def random_graphBA(n, p) -> nx.DiGraph:
 
   return graph
 
-def BarabasiAlbertGraph(n):
-    G = random_graphBA(n, 2)
+def convertMatrix(G, n):
     P = nx.convert_matrix.to_numpy_array(G)
     R = []
     for i in range(n):
@@ -111,6 +111,24 @@ def BarabasiAlbertGraph(n):
     for i in range(k):
         if l[i] != m[i]:
             R[l[i]][m[i]] = 0
+    
+    return R
+
+def BarabasiAlbertGraph(n):
+    G = random_graphBA(n, 2)
+    R = convertMatrix(G, n)
+
+    return R
+
+
+def WattsStrogatzGraph(n, k, p):  
+    G = watts_strogatz_graph(n, k, p, seed=None)  
+
+    N_range = range(n)
+    G.add_nodes_from(N_range)
+
+    R = convertMatrix(G, n)
+
     return R
 
 def twoCompliteGraphs(n):
@@ -162,11 +180,11 @@ def index(request):
     net = {}
 
     idAgent = 8 #такт для добавления влиятельного агента
-    cntGraph = 12 #количество графов
+    cntGraph = 10 #количество графов
     iterStop = 1 #шаг остановки 
     
     
-    fig = plt.figure(figsize=(10, 15), constrained_layout = True)
+    fig = plt.figure(figsize=(10, 20), constrained_layout = True)
     
 
     if request.method == 'POST':
@@ -192,8 +210,12 @@ def index(request):
         except:
             if request.POST['graphOptions'] == 'СompleteGraph':
                 R = compliteGraph(n)
+                plt.title("Complete Graph")
+                plt.axis('off')
             elif request.POST['graphOptions'] == 'ERGraph':
                 R = ErdosRenyiGraph(n)
+                plt.title("Erdos-Renyi Graph")
+                plt.axis('off')
             elif request.POST['graphOptions'] == 'Influential':
                 R = ErdosRenyiGraph(n)
                 for i in range(n):
@@ -202,8 +224,15 @@ def index(request):
                             R[i][j] = 0
             elif request.POST['graphOptions'] == 'BAGraph':
                 R = BarabasiAlbertGraph(n)
+                plt.title("Barabasi-Albert Graph")
+                plt.axis('off')
             elif request.POST['graphOptions'] == 'TwoComplGraph':
                 R = twoCompliteGraphs(n)
+            elif request.POST['graphOptions'] == 'WSGraph':
+                R = WattsStrogatzGraph(n, 4, 0.5)
+                plt.title("Watts-Strogatz Graph")
+                plt.axis('off')
+
 
         initR = []
         for i in range(n):
@@ -231,7 +260,9 @@ def index(request):
             init_str = request.POST['init_str1']
             init = init_str[1:-2]
             init =[int(i) for i in init.split(' ')]
+            print("!!!!")
         except:
+            print("!!")
             if request.POST['vectOptions'] == 'Prop' :
                 propN = int(n/2)
                 for i in range(propN): 
@@ -287,22 +318,37 @@ def index(request):
                         g.append(p[k]/p_sum)                
                     st.append(g)   
             elif request.POST['vectOptions'] == 'Beta':
-                 for i in range(n):
+                #  for i in range(n):
+                #     g = []
+                #     p = []
+                #     y = []
+                #     p_sum = 0
+                #     for j in range(cntType):                        
+                #         h = ran.betavariate(0.1, 0.1)
+                #         while h < 0.1 or h >1:
+                #             h = ran.betavariate(0.1, 0.1)
+                #         y.append(h)
+                #     for j in range(cntType):
+                #         p.append(y[j])
+                #         p_sum += y[j]
+                #     for k in range(cntType):
+                #         g.append(p[k]/p_sum)                
+                #     st.append(g) 
+                #для двух типов!!!!
+                for i in range(n):
                     g = []
                     p = []
                     y = []
                     p_sum = 0
-                    for j in range(cntType):                        
+
+                    h = ran.betavariate(0.1, 0.1)
+                    while h < 0.1 or h >0.9 or h < 0.4:
                         h = ran.betavariate(0.1, 0.1)
-                        while h < 0.1 or h >1:
-                            h = ran.betavariate(0.1, 0.1)
-                        y.append(h)
-                    for j in range(cntType):
-                        p.append(y[j])
-                        p_sum += y[j]
-                    for k in range(cntType):
-                        g.append(p[k]/p_sum)                
+                    g.append(h)
+                    g.append(1-h)
+
                     st.append(g) 
+
             elif request.POST['vectOptions'] == 'Prop' :
                 propN = int(n/2)
                 for i in range(propN):
@@ -381,15 +427,12 @@ def index(request):
         while fl == 1:
             step = 0
             while step < iter:
-                # print("--------")
-                # print(step)
                 if idAgent == 8 and request.POST['graphOptions'] == 'Influential':
                     for i in range(n):
                         for j in range(n):
                             # if i != j and (j == n-1 or i == n-1):
                             if  i == n - 1:
                                 R[i][j] = 2
-                        # print(R[i])
                     initial[n-1] = 2
                     Th[n-1] = 0.1
                     
@@ -419,9 +462,6 @@ def index(request):
                         for i in range(memory[j]):
                             for k in range(cntType):
                                 sumAct[k] += curMem[j][i][k]
-                    # print("3агент №", j)
-                    # for i in range(n):
-                    #     print("Внутреннее состояние", curMem[i][0])
                     
                     #условия активации агента
                     for k in range(cntType):
@@ -432,11 +472,7 @@ def index(request):
                     if np.sum(sumAct) >= Th[j] and flA != cntType:
                         state[j] = np.argmax(sumAct) + 1
                         flag = 1
-                        # print("1агент №", j)
-                        # print("Влияния", sumAct)
                     elif np.sum(sumAct) >= Th[j] and flA == cntType:
-                        # print("2агент №", j)
-                        # print("Влияния", sumAct)
                         for k in range(cntType):
                             flP = 0
                             for i in range(cntType):
@@ -450,8 +486,6 @@ def index(request):
                             flag = 1
                     else:
                         state[j] = 0
-                        # print("3агент №", j)
-                        # print("Влияния", sumAct)
 
                     inerState[j].append(sumAct)
 
@@ -502,16 +536,20 @@ def index(request):
 
             #построение графика
             ind = int((cntGraph / 2) + 1)
-            ax_1 = fig.add_subplot(ind, 1, 1)
+            ax_1 = fig.add_subplot(ind, 2, 1)
+            ax_1.set_xticks(x)
 
             ax = {}
             colors = []
             it = 0 
 
+            
+
             if request.POST['graphOptions'] == 'Influential':    
                 G = getGraph(n-1, initR)
             else:
                 G = getGraph(n, R)
+            
 
             for i in range(cntGraph):
                 if it < idAgent and request.POST['graphOptions'] == 'Influential':    
@@ -521,23 +559,29 @@ def index(request):
                     G = getGraph(n, R)
                     temp = colorGen(it, plotState, n)
                 ax[str(i)] = fig.add_subplot(ind, 2, i+3)
+                ax[str(i)].set_title("Tact №" + str(it), fontsize=10)
                 ax[str(i)] = plt.gca()
+                pos = nx.circular_layout(G)     
+                ax[str(i)] = nx.draw(G, pos, node_size = 400, font_weight='bold', node_color=temp, with_labels=True)
                 
                 it += iterStop
-                ax[str(i)] = nx.draw(G, node_size = 400, font_weight='bold', node_color=temp, with_labels=True)
 
+            plt.tight_layout()
 
 
             mycolors = ['tab:blue', 'tab:green', 'tab:pink', 'tab:red', 'tab:grey', 'tab:orange', 'tab:brown']
-            labs = [f"Тип активности {i+1}" for i in range(cntType)]
-            labs.append('Не активен')
+            labs = [f"Аctivity type {i+1}" for i in range(cntType)]
+            
+            labs.append('Inactive')
 
             
             ax_1.set_xlim(x[0], x[-1])
-            ax_1.set_xlabel('Такт')
-            ax_1.set_ylabel('Доля')
+            ax_1.set_xlabel('Tact', fontsize=8)
+            ax_1.set_ylabel('Proportion', fontsize=8)
             ax_1.stackplot(x, y, labels=labs, colors=mycolors, alpha=0.8)
-            ax_1.legend(fontsize=10, ncol=4)
+            ax_1.legend(bbox_to_anchor=(1, 0.6), fontsize=8, loc='center left')
+            # ax_1.margins (0.5) 
+            # ax_1.legend(fontsize=10, ncol=4)
 
             iSt = []
             for k in range(int(t)):
