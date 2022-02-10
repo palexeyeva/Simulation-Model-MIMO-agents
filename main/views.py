@@ -206,7 +206,19 @@ def index(request):
             l = []
             for i in matrix.split('], ['):
                 l.append([int(j) for j in i.split(', ')])
-            R = l            
+            R = l     
+            if request.POST['graphOptions'] == 'СompleteGraph':
+                plt.title("Complete Graph")
+                plt.axis('off')
+            elif request.POST['graphOptions'] == 'ERGraph':
+                plt.title("Erdos-Renyi Graph")
+                plt.axis('off')
+            elif request.POST['graphOptions'] == 'BAGraph':
+                plt.title("Barabasi-Albert Graph")
+                plt.axis('off')
+            elif request.POST['graphOptions'] == 'WSGraph':
+                plt.title("Watts-Strogatz Graph")
+                plt.axis('off')                  
         except:
             if request.POST['graphOptions'] == 'СompleteGraph':
                 R = compliteGraph(n)
@@ -250,10 +262,11 @@ def index(request):
         except:
             Th = []
             cnt = 0
-            while cnt < n:
-                Th.append(randNormal(1))
-                cnt += 1
-
+            # while cnt < n:
+            #     Th.append(randNormal(1.21))
+            #     cnt += 1
+            Th = np.random.triangular(0, 0.05, 4, n)
+            print(Th)
         #Проверка на фиксацию начального состояния сети
         try:
             i_str = request.POST['init_str']
@@ -580,9 +593,8 @@ def index(request):
             ax_1.set_ylabel('Proportion', fontsize=8)
             ax_1.stackplot(x, y, labels=labs, colors=mycolors, alpha=0.8)
             ax_1.legend(bbox_to_anchor=(1, 0.6), fontsize=8, loc='center left')
-            # ax_1.margins (0.5) 
-            # ax_1.legend(fontsize=10, ncol=4)
-
+            print("x", x)
+            print("y", y)
             iSt = []
             for k in range(int(t)):
                 j = []
