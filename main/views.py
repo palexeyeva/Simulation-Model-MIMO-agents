@@ -204,6 +204,7 @@ def index(request):
             matrix_str = request.POST['matrix_str1']
             matrix = matrix_str[2:-2]
             l = []
+            print("Матрица есть")
             for i in matrix.split('], ['):
                 l.append([int(j) for j in i.split(', ')])
             R = l     
@@ -259,13 +260,14 @@ def index(request):
             Th_str = request.POST['Th_str1']
             Th = Th_str[1:-1]
             Th = [float(i) for i in Th.split(', ')]
+            print("Пороги есть")
         except:
             Th = []
             cnt = 0
             # while cnt < n:
             #     Th.append(randNormal(1.21))
             #     cnt += 1
-            Th = np.random.triangular(0, 0.05, 4, n)
+            Th = np.random.triangular(1, 1.5, 2, n)
             print(Th)
         #Проверка на фиксацию начального состояния сети
         try:
@@ -273,15 +275,20 @@ def index(request):
             init_str = request.POST['init_str1']
             init = init_str[1:-2]
             init =[int(i) for i in init.split(' ')]
-            print("!!!!")
+            print("Начальное состояние есть")
         except:
-            print("!!")
+            # print("!!")
             if request.POST['vectOptions'] == 'Prop' :
-                propN = int(n/2)
-                for i in range(propN): 
-                    init.append(1)
-                for i in range(n - propN):
+                propN0 = int(n/3)
+                propN2 = int(n/4)
+                propN1 = n - propN0 - propN2
+
+                for i in range(propN0): 
+                    init.append(0)
+                for i in range(propN2):
                     init.append(2)
+                for i in range(propN1):
+                    init.append(1)
             else:
                 init = np.random.randint(0, cntType + 1, n) 
 
@@ -317,6 +324,7 @@ def index(request):
             for i in st.split('], ['):
                 l.append([float(j) for j in i.split(', ')])
             st = l
+            print("Вектор есть")
         except:
             if request.POST['vectOptions'] == 'Uniform':
                 for i in range(n):
@@ -363,8 +371,34 @@ def index(request):
                     st.append(g) 
 
             elif request.POST['vectOptions'] == 'Prop' :
-                propN = int(n/2)
-                for i in range(propN):
+                # propN = int(n/2)
+                # for i in range(propN):
+                #     g = []
+                #     p = []
+                #     y = []
+                #     p_sum = 0
+
+                #     h = ran.betavariate(0.1, 0.1)
+                #     while h < 0.1 or h >0.9 or h < 0.4:
+                #         h = ran.betavariate(0.1, 0.1)
+                #     g.append(h)
+                #     g.append(1-h)
+
+                #     st.append(g) 
+                    
+                # for i in range(n - propN):
+                #     g = []
+                #     p = []
+                #     y = []
+                #     p_sum = 0
+                #     h = ran.betavariate(0.1, 0.1)
+                #     while h < 0.1 or h >0.9 or h > 0.6:
+                #         h = ran.betavariate(0.1, 0.1)  
+                #     g.append(h)
+                #     g.append(1-h)                       
+
+                #     st.append(g) 
+                for i in range(n):
                     g = []
                     p = []
                     y = []
@@ -375,19 +409,6 @@ def index(request):
                         h = ran.betavariate(0.1, 0.1)
                     g.append(h)
                     g.append(1-h)
-
-                    st.append(g) 
-                    
-                for i in range(n - propN):
-                    g = []
-                    p = []
-                    y = []
-                    p_sum = 0
-                    h = ran.betavariate(0.1, 0.1)
-                    while h < 0.1 or h >0.9 or h > 0.6:
-                        h = ran.betavariate(0.1, 0.1)  
-                    g.append(h)
-                    g.append(1-h)                       
 
                     st.append(g) 
 
@@ -593,7 +614,7 @@ def index(request):
             ax_1.set_ylabel('Proportion', fontsize=8)
             ax_1.stackplot(x, y, labels=labs, colors=mycolors, alpha=0.8)
             ax_1.legend(bbox_to_anchor=(1, 0.6), fontsize=8, loc='center left')
-            print("x", x)
+            # print("x", x)
             print("y", y)
             iSt = []
             for k in range(int(t)):
