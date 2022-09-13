@@ -22,6 +22,7 @@ import networkx as nx
 import scipy.stats as ss
 from networkx.generators.random_graphs import barabasi_albert_graph
 from networkx.generators.random_graphs import watts_strogatz_graph
+import pandas as pd
 
 #Генерация нормального распределения
 def randNormal(m):
@@ -39,7 +40,7 @@ def getGraph(n, R):
         for j in range(n):
             if R[i][j] > 0:
                 graph.add_edge(i,j)
-                 
+                
 
     return graph
     
@@ -134,8 +135,10 @@ def WattsStrogatzGraph(n, k, p):
 def twoCompliteGraphs(n):
     count = int(n/2)
 
-    T = compliteGraph(count)
-    M = compliteGraph(n - count)
+    T = BarabasiAlbertGraph(count)
+    M = BarabasiAlbertGraph(n - count)
+    # T = WattsStrogatzGraph(count, 4, 0.5)
+    # M = WattsStrogatzGraph(n - count, 4, 0.5)
 
     R = []
 
@@ -152,15 +155,26 @@ def twoCompliteGraphs(n):
 
     k = int(np.random.randint(count, n, 1))
     l = int(np.random.randint(0, count, 1))
-    R[k][l] = 100
+
+    R[k][l] = 2
     
-    i = 0
-    while i < count:        
-        if R[l][i] == 1:
-            R[l][i] = 100
-        i+=1
+
+    k = int(np.random.randint(0, count, 1))
+    l = int(np.random.randint(count, n, 1))
+
+    R[k][l] = 2
+    
+    return R, k, l
+
+def TwoCommunity(n):
+    
+    R = []
+
+      excel_data = pd.read_excel('matrix.xlsx')
+    data = pd.DataFrame(excel_data, columns=['matrix'])
+
     for i in range(n):
-        print(R[i])
+        R.append(list(map(int, data['matrix'][i].split(";"))))
 
     return R
 
@@ -179,12 +193,12 @@ def index(request):
     p = []
     net = {}
 
-    idAgent = 8 #такт для добавления влиятельного агента
+    idAgent = 2 #такт для добавления влиятельного агента
     cntGraph = 10 #количество графов
     iterStop = 1 #шаг остановки 
     
     
-    fig = plt.figure(figsize=(10, 20), constrained_layout = True)
+    fig = plt.figure(figsize=(10, 25), constrained_layout = True)
     
 
     if request.method == 'POST':
@@ -230,7 +244,7 @@ def index(request):
                 plt.title("Erdos-Renyi Graph")
                 plt.axis('off')
             elif request.POST['graphOptions'] == 'Influential':
-                R = ErdosRenyiGraph(n)
+                R = BarabasiAlbertGraph(n)
                 for i in range(n):
                     for j in range(n):
                         if j == n-1 or i == n-1:
@@ -240,12 +254,14 @@ def index(request):
                 plt.title("Barabasi-Albert Graph")
                 plt.axis('off')
             elif request.POST['graphOptions'] == 'TwoComplGraph':
-                R = twoCompliteGraphs(n)
+                R, indexI, indexJ  = twoCompliteGraphs(n)
             elif request.POST['graphOptions'] == 'WSGraph':
-                R = WattsStrogatzGraph(n, 4, 0.5)
+                R = WattsStrogatzGraph(n, 3, 0.5)
                 plt.title("Watts-Strogatz Graph")
                 plt.axis('off')
-
+            elif request.POST['graphOptions'] == 'TwoCommunity':
+                R = TwoCommunity(n)
+        print(R)
 
         initR = []
         for i in range(n):
@@ -259,7 +275,7 @@ def index(request):
             T_str = request.POST['Th_str']
             Th_str = request.POST['Th_str1']
             Th = Th_str[1:-1]
-            Th = [float(i) for i in Th.split(', ')]
+            Th = [float(i) for i in Th.split(' ')]
             print("Пороги есть")
         except:
             Th = []
@@ -267,22 +283,33 @@ def index(request):
             # while cnt < n:
             #     Th.append(randNormal(1.21))
             #     cnt += 1
-            Th = np.random.triangular(1, 1.5, 2, n)
+            Th = np.random.triangular(0, 0.2, 0.7, n)
             print(Th)
+
         #Проверка на фиксацию начального состояния сети
         try:
             i_str = request.POST['init_str']
             init_str = request.POST['init_str1']
             init = init_str[1:-2]
-            init =[int(i) for i in init.split(' ')]
+            init =[int(i) for i in init.split(', ')]
             print("Начальное состояние есть")
         except:
-            # print("!!")
-            if request.POST['vectOptions'] == 'Prop' :
+            if request.POST['graphOptions'] == 'TwoComplGraph' :
+                count = int(n/2)
+                for i in range(count): 
+                    init.append(1)
+                for i in range(n-count):
+                    init.append(2)
+                print(init)
+            elif request.POST['graphOptions'] == 'Influential' :
+                # count = int(n/2)
+                for i in range(n): 
+                    init.append(1)
+                print(init)
+            elif request.POST['vectOptions'] == 'Prop' :
                 propN0 = int(n/3)
                 propN2 = int(n/4)
                 propN1 = n - propN0 - propN2
-
                 for i in range(propN0): 
                     init.append(0)
                 for i in range(propN2):
@@ -291,6 +318,9 @@ def index(request):
                     init.append(1)
             else:
                 init = np.random.randint(0, cntType + 1, n) 
+                # for i in range(n):
+                #     init.append(1)
+            print(init)
 
 
         #Проверка на фиксацию глубины памяти        
@@ -326,6 +356,7 @@ def index(request):
             st = l
             print("Вектор есть")
         except:
+             
             if request.POST['vectOptions'] == 'Uniform':
                 for i in range(n):
                     g = []
@@ -363,12 +394,39 @@ def index(request):
                     p_sum = 0
 
                     h = ran.betavariate(0.1, 0.1)
-                    while h < 0.1 or h >0.9 or h < 0.4:
+                    while h < 0.1 or h >0.9 and h > 0.6:
                         h = ran.betavariate(0.1, 0.1)
                     g.append(h)
                     g.append(1-h)
 
                     st.append(g) 
+                # propN = int(n/2)
+                # for i in range(propN):
+                #     g = []
+                #     p = []
+                #     y = []
+                #     p_sum = 0
+
+                #     h = ran.betavariate(0.1, 0.1)
+                #     while h < 0.1 or h >0.9 or h > 0.6:
+                #         h = ran.betavariate(0.1, 0.1)
+                #     g.append(h)
+                #     g.append(1-h)
+
+                #     st.append(g) 
+                    
+                # for i in range(n - propN):
+                #     g = []
+                #     p = []
+                #     y = []
+                #     p_sum = 0
+                #     h = ran.betavariate(0.1, 0.1)
+                #     while h < 0.1 or h >0.9 or h < 0.4:
+                #         h = ran.betavariate(0.1, 0.1)  
+                #     g.append(h)
+                #     g.append(1-h)                       
+
+                #     st.append(g) 
 
             elif request.POST['vectOptions'] == 'Prop' :
                 # propN = int(n/2)
@@ -411,6 +469,11 @@ def index(request):
                     g.append(1-h)
 
                     st.append(g) 
+            # if request.POST['graphOptions'] == 'TwoComplGraph':
+            #     print(indexI)
+            #     st[indexI][0] = 0.1
+            #     st[indexI][1] = 0.9
+
 
         iter = int(request.POST['iter'])
     
@@ -461,14 +524,24 @@ def index(request):
         while fl == 1:
             step = 0
             while step < iter:
-                if idAgent == 8 and request.POST['graphOptions'] == 'Influential':
+                if idAgent == step and request.POST['graphOptions'] == 'Influential':
                     for i in range(n):
                         for j in range(n):
                             # if i != j and (j == n-1 or i == n-1):
                             if  i == n - 1:
-                                R[i][j] = 2
+                                R[i][j] = 1
                     initial[n-1] = 2
                     Th[n-1] = 0.1
+
+                    # for i in range(n):
+                    #     for j in range(n):
+                    #         if  i == n - 2:
+                    #             R[i][j] = 3
+                    # initial[n-2] = 1
+                    # Th[n-2] = 0.1
+
+                    # R[n-2][n-1] = 0
+                    # R[n-1][n-2] = 0
                     
                 e = []
                 e = np.zeros(cntType)
