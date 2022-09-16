@@ -23,6 +23,8 @@ import scipy.stats as ss
 from networkx.generators.random_graphs import barabasi_albert_graph
 from networkx.generators.random_graphs import watts_strogatz_graph
 import pandas as pd
+import vk_api
+import json
 
 #Генерация нормального распределения
 def randNormal(m):
@@ -39,8 +41,7 @@ def getGraph(n, R):
     for i in range(n):
         for j in range(n):
             if R[i][j] > 0:
-                graph.add_edge(i,j)
-                
+                graph.add_edge(i,j)                
 
     return graph
     
@@ -158,7 +159,6 @@ def twoCompliteGraphs(n):
 
     R[k][l] = 2
     
-
     k = int(np.random.randint(0, count, 1))
     l = int(np.random.randint(count, n, 1))
 
@@ -170,13 +170,66 @@ def TwoCommunity(n):
     
     R = []
 
-      excel_data = pd.read_excel('matrix.xlsx')
+    excel_data = pd.read_excel('matrix.xlsx')
     data = pd.DataFrame(excel_data, columns=['matrix'])
 
     for i in range(n):
         R.append(list(map(int, data['matrix'][i].split(";"))))
 
     return R
+
+
+def captcha_handler(captcha):
+
+    key = input("Enter captcha code {0}: ".format(captcha.get_url())).strip()
+
+    # Пробуем снова отправить запрос с капчей
+    return captcha.try_again(key)
+
+
+def fields(request):
+    
+    if request.method == 'POST':
+        #входные параметры для поиска
+        firstCom = 'msu_official'
+        secondCom = 'hse'
+
+        count = '5'
+
+        #чтение файла с логином и паролем
+        f = open("C:/login.txt", "r")
+
+        #открытие сесси вк
+        vk_session = vk_api.VkApi(f.readline(), f.readline(), captcha_handler=captcha_handler)
+        vk_session.auth()
+        vk = vk_session.get_api()
+
+        #сбор данных об участниках групп
+        getFirstCom = vk.groups.getMembers(group_id = firstCom, count = count, offset = '3000')
+        getSecondCom = vk.groups.getMembers(group_id = secondCom, count = count, offset = '2000')
+            
+        
+        dataFriends = {
+            firstCom : {},
+            secondCom : getSecondCom['items']
+        }
+
+
+        for i in range(int(count)):           
+            try:
+                getFriends = vk.friends.get(user_id = str(getFirstCom['items'][i]))
+                g = {str(getFirstCom['items'][i]): getFriends['items']}
+                dataFriends[firstCom].update(g)
+            except:
+                print("private")
+
+
+        with open('data_file.json', 'w') as outfile:
+            json.dump(dataFriends, outfile)
+
+        print('test1')
+
+    return render(request, 'fields.html')
 
 
 def index(request):

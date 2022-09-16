@@ -17,6 +17,7 @@
       type="text/css"
     />
     <link rel="icon" href="#" />
+    <script src="{% static 'scripts/collection.js' %}"></script>
     <script src="{% static 'scripts/external.js' %}"></script>
     <script src="http://code.jquery.com/jquery-2.0.2.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
@@ -38,83 +39,31 @@
       {% csrf_token %}
       <div class="section-content">
         <section class="section-inputNumber">
-          <div class="inputNumber">
-            <div class="inputNumber__cellCount num">
-              <p>Количество агентов</p>
-              <input
-                type="number"
-                id="cellCount"
-                name="count"
-                onkeypress="if ( isNaN(this.value + String.fromCharCode(event.keyCode) )) return false;"
-              />
-            </div>
-            <div class="inputNumber__iterCount num">
-              <p>Количество итераций</p>
-              <input
-                type="number"
-                id="iterCount"
-                name="iter"
-                onkeypress="if ( isNaN(this.value + String.fromCharCode(event.keyCode) )) return false;"
-              />
-            </div>
-          </div>
           <div class="section-inputNumber__button">
             <input
-              type="button"
+              type="submit"
               class="btn btn-primary"
               value="Дальше"
-              onclick="openTab('inputData');"
+            />
+            <input
+              type="button"
+              onclick="document.location='../'"
+              value="Вернуться"
+              class="btn btn-primary"
             />
           </div>
         </section>
         <section
           class="section__inputData"
           id="inputData"
-          style="display: none;"
-        >
-          <div class="section__inputData-fields">
-            <div class="inputData__matrix field" id="matrix">
-              <p>Матрица влияний</p>
-            </div>
-            <div class="inputData__th field" id="th">
-              <p>Порог активации агентов</p>
-            </div>
-            <div class="inputData_memory field" id="memory">
-              <p>Глубина памяти агентов</p>
-            </div>
-            <div class="inputData__disc field" id="disc">
-              <p>Коэффициент дисконтирования</p>
-            </div>
-            <div class="inputData__initial field" id="initial">
-              <p>Начальное состояние агентов</p>
-            </div>
-            <div class="inputData__stochastic field" id="stochastic">
-              <p>Стохастический вектор</p>
-            </div>
-          </div>
-          <div class="section-inputData__button">
-            <input
-              type="submit"
-              class="btn btn-primary"
-              value="Построить"
-              onclick="showGraph()"
-            />
-          </div>
-        </section>
+          style="display: none"
+        ></section>
         <section class="section-graph">
           <div class="graph-outPut" id="output">
-            <h2>Графики поведения агентов</h2>
-            <div class="graph-img">
-              {{data|safe}}
-            </div>
+            <!-- <h2>Графики поведения агентов</h2> -->
+            <div class="graph-img">{{data|safe}}</div>
           </div>
           <div id="editor"></div>
-          <input
-            type="button"
-            class="btn btn-primary"
-            value="Скачать"
-            onclick="downloadData()"
-          />
         </section>
       </div>
     </form>

@@ -9,6 +9,6 @@ from . import views
 app_name = 'main'
 
 urlpatterns = [
-    path('', views.index)
-    
+    path('', views.index),
+    path('fields', views.fields)   
 ]
