@@ -179,54 +179,10 @@ def TwoCommunity(n):
     return R
 
 
-def captcha_handler(captcha):
-
-    key = input("Enter captcha code {0}: ".format(captcha.get_url())).strip()
-
-    # Пробуем снова отправить запрос с капчей
-    return captcha.try_again(key)
-
 
 def fields(request):
     
     if request.method == 'POST':
-        #входные параметры для поиска
-        firstCom = 'msu_official'
-        secondCom = 'hse'
-
-        count = '5'
-
-        #чтение файла с логином и паролем
-        f = open("C:/login.txt", "r")
-
-        #открытие сесси вк
-        vk_session = vk_api.VkApi(f.readline(), f.readline(), captcha_handler=captcha_handler)
-        vk_session.auth()
-        vk = vk_session.get_api()
-
-        #сбор данных об участниках групп
-        getFirstCom = vk.groups.getMembers(group_id = firstCom, count = count, offset = '3000')
-        getSecondCom = vk.groups.getMembers(group_id = secondCom, count = count, offset = '2000')
-            
-        
-        dataFriends = {
-            firstCom : {},
-            secondCom : getSecondCom['items']
-        }
-
-
-        for i in range(int(count)):           
-            try:
-                getFriends = vk.friends.get(user_id = str(getFirstCom['items'][i]))
-                g = {str(getFirstCom['items'][i]): getFriends['items']}
-                dataFriends[firstCom].update(g)
-            except:
-                print("private")
-
-
-        with open('data_file.json', 'w') as outfile:
-            json.dump(dataFriends, outfile)
-
         print('test1')
 
     return render(request, 'fields.html')
@@ -314,7 +270,8 @@ def index(request):
                 plt.axis('off')
             elif request.POST['graphOptions'] == 'TwoCommunity':
                 R = TwoCommunity(n)
-        print(R)
+            elif request.POST['graphOptions'] == 'TwoCommunityVK':
+                R = TwoCommunity(n)
 
         initR = []
         for i in range(n):
@@ -572,8 +529,12 @@ def index(request):
         for i in range(n):
             for j in range(memory[i]): 
                 for k in range(cntType):
-                    curMem[i][j][k] = curMem[i][j][k]*0        
-        
+                    curMem[i][j][k] = curMem[i][j][k]*0
+                            
+        if request.POST['graphOptions'] == 'TwoCommunityVK':
+            initial[0] = 1
+            initial[127] = 2
+
         while fl == 1:
             step = 0
             while step < iter:
@@ -585,6 +546,9 @@ def index(request):
                                 R[i][j] = 1
                     initial[n-1] = 2
                     Th[n-1] = 0.1
+                if request.POST['graphOptions'] == 'TwoCommunityVK':
+                    initial[0] = 1
+                    initial[127] = 2
 
                     # for i in range(n):
                     #     for j in range(n):
@@ -671,89 +635,94 @@ def index(request):
             timePeriod = [f"t{i}" for i in range(t)]
             x = np.arange(t)
             y = []
-
-            #определение координат графика, доля типа
-            for i in plotState:
-                tot_el = 0
-                d = {}
-                for j in range(cntType+1):
-                    d[j] = 0
-                for j in i:
-                    d[j] += 1
-                    tot_el += 1
-                for j in d: 
-                    d[j] = d[j] / tot_el
-                prop.append(d)
-
-            y = []
-            for i in range(cntType+1):
-                g = []
-                for dic in prop:
-                    g.append(dic[i])
-                y.append(g)
-
-            y.append(y.pop(0))
-
-            #построение графика
-            ind = int((cntGraph / 2) + 1)
-            ax_1 = fig.add_subplot(ind, 2, 1)
-            ax_1.set_xticks(x)
-
-            ax = {}
-            colors = []
-            it = 0 
-
             
+            if request.POST['graphOptions'] == 'TwoCommunityVK':
+                df = pd.DataFrame(np.transpose(plotState))
 
-            if request.POST['graphOptions'] == 'Influential':    
-                G = getGraph(n-1, initR)
+                with open('m3.csv', 'a') as f:
+                    df.to_csv(f, index=False)
+
+                print("записано")
+            
             else:
-                G = getGraph(n, R)
-            
+                #определение координат графика, доля типа
+                for i in plotState:
+                    tot_el = 0
+                    d = {}
+                    for j in range(cntType+1):
+                        d[j] = 0
+                    for j in i:
+                        d[j] += 1
+                        tot_el += 1
+                    for j in d: 
+                        d[j] = d[j] / tot_el
+                    prop.append(d)
 
-            for i in range(cntGraph):
-                if it < idAgent and request.POST['graphOptions'] == 'Influential':    
+                y = []
+                for i in range(cntType+1):
+                    g = []
+                    for dic in prop:
+                        g.append(dic[i])
+                    y.append(g)
+
+                y.append(y.pop(0))
+
+                #построение графика
+                ind = int((cntGraph / 2) + 1)
+                ax_1 = fig.add_subplot(ind, 2, 1)
+                ax_1.set_xticks(x)
+
+                ax = {}
+                colors = []
+                it = 0 
+               
+
+                if request.POST['graphOptions'] == 'Influential':    
                     G = getGraph(n-1, initR)
-                    temp = colorGen(it, plotState, n-1)
                 else:
                     G = getGraph(n, R)
-                    temp = colorGen(it, plotState, n)
-                ax[str(i)] = fig.add_subplot(ind, 2, i+3)
-                ax[str(i)].set_title("Tact №" + str(it), fontsize=10)
-                ax[str(i)] = plt.gca()
-                pos = nx.circular_layout(G)     
-                ax[str(i)] = nx.draw(G, pos, node_size = 400, font_weight='bold', node_color=temp, with_labels=True)
                 
-                it += iterStop
 
-            plt.tight_layout()
+                for i in range(cntGraph):
+                    if it < idAgent and request.POST['graphOptions'] == 'Influential':    
+                        G = getGraph(n-1, initR)
+                        temp = colorGen(it, plotState, n-1)
+                    else:
+                        G = getGraph(n, R)
+                        temp = colorGen(it, plotState, n)
+                    ax[str(i)] = fig.add_subplot(ind, 2, i+3)
+                    ax[str(i)].set_title("Tact №" + str(it), fontsize=10)
+                    ax[str(i)] = plt.gca()
+                    pos = nx.circular_layout(G)     
+                    ax[str(i)] = nx.draw(G, pos, node_size = 400, font_weight='bold', node_color=temp, with_labels=True)
+                    
+                    it += iterStop
 
-
-            mycolors = ['tab:blue', 'tab:green', 'tab:pink', 'tab:red', 'tab:grey', 'tab:orange', 'tab:brown']
-            labs = [f"Аctivity type {i+1}" for i in range(cntType)]
-            
-            labs.append('Inactive')
-
-            
-            ax_1.set_xlim(x[0], x[-1])
-            ax_1.set_xlabel('Tact', fontsize=8)
-            ax_1.set_ylabel('Proportion', fontsize=8)
-            ax_1.stackplot(x, y, labels=labs, colors=mycolors, alpha=0.8)
-            ax_1.legend(bbox_to_anchor=(1, 0.6), fontsize=8, loc='center left')
-            # print("x", x)
-            print("y", y)
-            iSt = []
-            for k in range(int(t)):
-                j = []
-                for i in range(int(n)):
-                    g = inerState[i][k].copy()
-                    j.append(g)
-                iSt.append(j)
+                plt.tight_layout()
 
 
-            prt['iner'].extend(iSt)
-            p = zip(prt['t'], prt['state'], prt['iner'])
-            
+                mycolors = ['tab:blue', 'tab:green', 'tab:pink', 'tab:red', 'tab:grey', 'tab:orange', 'tab:brown']
+                labs = [f"Аctivity type {i+1}" for i in range(cntType)]
+                
+                labs.append('Inactive')
+                
+                ax_1.set_xlim(x[0], x[-1])
+                ax_1.set_xlabel('Tact', fontsize=8)
+                ax_1.set_ylabel('Proportion', fontsize=8)
+                ax_1.stackplot(x, y, labels=labs, colors=mycolors, alpha=0.8)
+                ax_1.legend(bbox_to_anchor=(1, 0.6), fontsize=8, loc='center left')
+                iSt = []
+                for k in range(int(t)):
+                    j = []
+                    for i in range(int(n)):
+                        g = inerState[i][k].copy()
+                        j.append(g)
+                    iSt.append(j)
+
+
+                prt['iner'].extend(iSt)
+                p = zip(prt['t'], prt['state'], prt['iner'])
+                
             fl = int(0)
         
         if flagSave:
