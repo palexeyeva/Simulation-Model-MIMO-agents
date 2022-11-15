@@ -290,9 +290,6 @@ def index(request):
         except:
             Th = []
             cnt = 0
-            # while cnt < n:
-            #     Th.append(randNormal(1.21))
-            #     cnt += 1
             Th = np.random.triangular(0, 0.2, 0.7, n)
             print(Th)
 
@@ -312,7 +309,6 @@ def index(request):
                     init.append(2)
                 print(init)
             elif request.POST['graphOptions'] == 'Influential' :
-                # count = int(n/2)
                 for i in range(n): 
                     init.append(1)
                 print(init)
@@ -327,12 +323,9 @@ def index(request):
                 for i in range(propN1):
                     init.append(1)
             else:
-                init = np.random.randint(0, cntType + 1, n) 
-                # for i in range(n):
-                #     init.append(1)
-            print(init)
-
-
+                # init = np.random.randint(0, cntType + 1, n) 
+                for i in range(n):
+                    init.append(0)
         #Проверка на фиксацию глубины памяти        
         try:
             me_str = request.POST['mem_str']
@@ -342,7 +335,6 @@ def index(request):
         except:
             for i in range(n):
                 mem.append(1)
-            # mem = np.random.randint(1, 4, n)  
         
         #Проверка на фиксацию коэф. дисконтирования
         try:
@@ -353,7 +345,6 @@ def index(request):
         except:
             for i in range(n):
                 disc.append(1)
-            # disc = np.random.uniform(0, 1, n)
 
         #Проверка на фиксацию стохастического вектора
         try:
@@ -366,7 +357,7 @@ def index(request):
             st = l
             print("Вектор есть")
         except:
-             
+           
             if request.POST['vectOptions'] == 'Uniform':
                 for i in range(n):
                     g = []
@@ -530,13 +521,10 @@ def index(request):
             for j in range(memory[i]): 
                 for k in range(cntType):
                     curMem[i][j][k] = curMem[i][j][k]*0
-                            
-        if request.POST['graphOptions'] == 'TwoCommunityVK':
-            initial[0] = 1
-            initial[127] = 2
-
+        
+        flagToChange = True                    
         while fl == 1:
-            step = 0
+            step = 0      
             while step < iter:
                 if idAgent == step and request.POST['graphOptions'] == 'Influential':
                     for i in range(n):
@@ -546,10 +534,23 @@ def index(request):
                                 R[i][j] = 1
                     initial[n-1] = 2
                     Th[n-1] = 0.1
-                if request.POST['graphOptions'] == 'TwoCommunityVK':
-                    initial[0] = 1
-                    initial[127] = 2
+                
 
+                if request.POST['graphOptions'] == 'TwoCommunityVK' and step % 6 != 0:
+                        initial[0] = 0
+                        initial[187] = 0
+                elif request.POST['graphOptions'] == 'TwoCommunityVK' and step % 6 == 0:
+                        if flagToChange:
+                            initial[0] = 1
+                            initial[187] = 0
+                            flagToChange = False
+                        else: 
+                            initial[0] = 0
+                            initial[187] = 2
+                            flagToChange = True
+
+                elif request.POST['graphOptions'] == 'TwoCommunity':
+                    initial[0] = 1
                     # for i in range(n):
                     #     for j in range(n):
                     #         if  i == n - 2:
@@ -608,6 +609,7 @@ def index(request):
                         else:
                             state[j] = ran.randint(1, cntType)
                             flag = 1
+                            print("случ")
                     else:
                         state[j] = 0
 
@@ -631,6 +633,17 @@ def index(request):
                 t += 1
                 step += 1
 
+            #---------------самый последний и ненужный такт
+            # if request.POST['graphOptions'] == 'TwoCommunityVK' and step % 6 != 0:
+            #         initial[0] = 13
+            #         initial[187] = 14
+            # elif request.POST['graphOptions'] == 'TwoCommunityVK' and step % 6 == 0:
+            #         initial[0] = 15
+            #         initial[187] = 16
+
+            # elif request.POST['graphOptions'] == 'TwoCommunity':
+            #         initial[0] = 1
+
             prop = []
             timePeriod = [f"t{i}" for i in range(t)]
             x = np.arange(t)
@@ -639,7 +652,7 @@ def index(request):
             if request.POST['graphOptions'] == 'TwoCommunityVK':
                 df = pd.DataFrame(np.transpose(plotState))
 
-                with open('m3.csv', 'a') as f:
+                with open('m3.csv', 'a', newline='') as f:
                     df.to_csv(f, index=False)
 
                 print("записано")
