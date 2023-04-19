@@ -1,5 +1,4 @@
-from django.http import request
-from django.http import response
+from django.http import request, response
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, render
 import requests
@@ -20,8 +19,7 @@ import itertools
 import plotly.graph_objects as go
 import networkx as nx
 import scipy.stats as ss
-from networkx.generators.random_graphs import barabasi_albert_graph
-from networkx.generators.random_graphs import watts_strogatz_graph
+from networkx.generators.random_graphs import barabasi_albert_graph, watts_strogatz_graph
 import pandas as pd
 import vk_api
 import json
@@ -178,6 +176,46 @@ def TwoCommunity(n):
 
     return R
 
+def countCommunityVK(id_name):
+
+    with open("data_with_distribution.json", "r") as infile:
+        data_json = infile.read()
+    data_json= json.loads(data_json)
+    
+    Th = [0, 0]
+    mem = [1, 1]
+    disc = [1, 1]
+
+    for i in range(len(id_name)):
+        for item in data_json:
+            if str(id_name[i]) in data_json[item].keys():
+                Th.append(data_json[item][str(id_name[i])]["param"]["Th"])
+                if data_json[item][str(id_name[i])]["param"]["type"] == "аналитик":
+                    mem.append(3)
+                    disc.append(0.7)
+                else:
+                    mem.append(1)
+                    disc.append(1)
+
+    return Th, mem, disc 
+
+
+def ParamCommunityVK(n):
+
+    R = []
+
+    excel_data = pd.read_excel('matrix.xlsx')
+    data = pd.DataFrame(excel_data, columns=['matrix'])
+
+    for i in range(n):
+        R.append(list(map(int, data['matrix'][i].split(";"))))
+
+    id_name = []
+    for i in range(n):
+        id_name.append(data.iloc[0][i+1])
+
+    
+    return R, id_name
 
 
 def fields(request):
@@ -201,6 +239,8 @@ def index(request):
     prt = {}
     p = []
     net = {}
+    id_name = []
+    
 
     idAgent = 2 #такт для добавления влиятельного агента
     cntGraph = 10 #количество графов
@@ -272,6 +312,8 @@ def index(request):
                 R = TwoCommunity(n)
             elif request.POST['graphOptions'] == 'TwoCommunityVK':
                 R = TwoCommunity(n)
+            elif request.POST['graphOptions'] == 'ParamCommunityVK':
+                R, id_name = ParamCommunityVK(n)
 
         initR = []
         for i in range(n):
@@ -290,7 +332,10 @@ def index(request):
         except:
             Th = []
             cnt = 0
-            Th = np.random.triangular(0, 0.2, 0.7, n)
+            if request.POST['graphOptions'] == 'ParamCommunityVK':
+                Th, mem, disc = countCommunityVK(id_name)
+            else:
+                Th = np.random.triangular(0, 0.2, 0.7, n)
             print(Th)
 
         #Проверка на фиксацию начального состояния сети
@@ -333,8 +378,9 @@ def index(request):
             mem = mem_str[1:-1]
             mem = [int(i) for i in mem.split(', ')]
         except:
-            for i in range(n):
-                mem.append(1)
+            if request.POST['graphOptions'] != 'ParamCommunityVK':
+                for i in range(n):
+                    mem.append(1)
         
         #Проверка на фиксацию коэф. дисконтирования
         try:
@@ -343,8 +389,9 @@ def index(request):
             disc = disc_str[1:-1]
             disc = [int(i) for i in disc.split(', ')]
         except:
-            for i in range(n):
-                disc.append(1)
+            if request.POST['graphOptions'] != 'ParamCommunityVK':
+                for i in range(n):
+                    disc.append(1)
 
         #Проверка на фиксацию стохастического вектора
         try:
