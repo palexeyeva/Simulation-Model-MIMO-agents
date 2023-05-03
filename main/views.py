@@ -253,7 +253,7 @@ def index(request):
     id_name = []
     
 
-    idAgent = 2 #такт для добавления влиятельного агента
+    # idAgent = 2 #такт для добавления влиятельного агента
     cntGraph = 10 #количество графов
     iterStop = 1 #шаг остановки 
     
@@ -271,6 +271,9 @@ def index(request):
             flagSave = True
         except:
             flagSave = False
+
+        if request.POST['graphOptions'] == 'Influential':
+            idAgent = request.POST['idAgent']
 
         #Проверка наличия флага на фиксацию параметров
         try: 

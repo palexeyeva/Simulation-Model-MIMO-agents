@@ -42,17 +42,20 @@ header {
     padding-top: 2%;
     display: flex;
     flex-wrap: wrap;
+    width: 80%;
+    margin: 0 auto;
 }
 
 .inputNumber {
     display: flex;
     text-align: center;
+
 }
 
-.num {
+/* .num {
     width: 9.3vw;
     margin-right: 50px;
-}
+} */
 
 #cellCount, #iterCount {
     width: 9.3vw;
@@ -69,7 +72,7 @@ h1 {
 }
 
 p {
-    font-size: 1.3em;
+    font-size: 1em;
     font-weight: 600;
 }
 
@@ -83,6 +86,10 @@ p {
     display: flex;
     /* align-items: end; */
     margin-top: 70px;
+    justify-content: space-around;
+}
+.inp-file {
+    margin-right: 50px;
 }
 .section__inputData-fields {
     display: flex;
@@ -100,12 +107,21 @@ p {
     padding-top: 75px;
 }
 
-.checkbox-section{
+.checkbox-section, .add-section {
     display: flex;
     flex-direction: column;
     margin: 20px auto;
     text-align: center;
+    width: 100%;
 }
+
+#input-inf{
+    display: flex;
+    flex-direction: column;
+    margin-right: auto;
+    width: 20%;
+}
+
 .next {
     margin-right: 30px;
 }
@@ -230,8 +246,8 @@ img {
 .additional-choice {
     display: flex;
     text-align: center;
-    padding-top: 20px;
-    font-size: 14px;
+    /* padding-top: 20px;
+    font-size: 14px; */
 }
 
 .type-count__inp {
@@ -249,9 +265,16 @@ img {
 }
 
 .additional-choice input {
-    width: 9.3vw;
+    width: 90%;
 }
 
 .additional-choice select {
-    width: 9.3vw;
+    width: 90%;
+}
+
+.second-layort {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-top: 15px;
 }

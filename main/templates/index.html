@@ -54,7 +54,7 @@
     <header
       class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom"
     >
-    <h1>Исследование сетей MIMO-агентов</h1>
+      <h1>Исследование сетей MIMO-агентов</h1>
     </header>
     <form
       class="page"
@@ -85,16 +85,24 @@
                 onkeypress="if ( isNaN(this.value + String.fromCharCode(event.keyCode) )) return false;"
               />
             </div>
+            <div class="type-count__inp num">
+              <p>Количество типов активности</p>
+              <input type="number" name="cntType" id="cntType" />
+            </div>
             <div class="inputNumber__graph num">
-              <p>Модель графа</p>
+              <p>Топология графа</p>
+              <br />
               <select
                 class="form-select form-select-sm"
                 aria-label=".form-select-sm example"
                 name="graphOptions"
+                onchange="additionalInfo(this)"
               >
                 <option selected value="СompleteGraph">Полный граф</option>
                 <option value="ERGraph">Граф ЭР</option>
-                <option value="Influential">Граф ЭР с влиятельным агентом</option>
+                <option value="Influential">
+                  Граф ЭР с влиятельным агентом
+                </option>
                 <option value="BAGraph">Граф Барабаши-Альберт</option>
                 <option value="WSGraph">Граф Уоттса-Строгаца</option>
                 <option value="TwoComplGraph">Две сети полного графа</option>
@@ -103,58 +111,67 @@
                 <option value="ParamCommunityVK">Выгрузка сообществ ВК</option>
               </select>
             </div>
-          </div>
-          <div class="section-inputNumber__button">
-            <input
-              type="submit"
-              class="btn btn-primary next"
-              value="Дальше"
-              onclick="openTab('inputData');"
-            />
-            <input
-              type="file"
-              class="form-control form-control-sm"
-              value="Обзор..."
-              name="flop"
-              id="flop"
-              onchange="readFile(this)"
-            />
-          </div>
-          <div class="svBox">
-            <label for="l_box1"
-              ><input
-                class="form-check-input"
-                type="radio"
-                name="checkboxSave"
-                value="saveBox"
-                id="l_box1"
-              />Сохранить данные</label
-            >
-          </div>
-          
-          <div class="additional-choice">
-            <div class="type-count__inp">
-              <p>Количество типов активности</p>
-              <input type="number" name="cntType" id="cntType" />
+
+            <div class="additional-choice num">
+              <div class="distrip__inp">
+                <p>Вид распределения для стохастического вектора</p>
+                <select
+                  class="form-select form-select-sm"
+                  aria-label=".form-select-sm example"
+                  name="vectOptions"
+                  id="vectOptions"
+                >
+                  <option selected value="Uniform">
+                    Равномерное распределение
+                  </option>
+                  <option value="Beta">Бета-распределение</option>
+                  <option value="Prop">Распределение по долям</option>
+                </select>
+              </div>
             </div>
-            <div class="distrip__inp">
-              <p>Вид распределения для стохастического вектора</p>
-              <select
-                class="form-select form-select-sm"
-                aria-label=".form-select-sm example"
-                name="vectOptions"
-                id = "vectOptions"
+          </div>
+          <div class="second-layort">
+
+            <div class="count-graph__inp">
+              <p>Количество графов на холсте</p>
+              <input type="number" name="cntGraph" id="cntGraph" />
+            </div>
+
+            <div class="count-graph__inp">
+              <p>Шаг отрисовки графа</p>
+              <input type="number" name="iterStop" id="iterStop" />
+            </div>
+
+            <div class="svBox">
+              <label for="l_box1"
+                ><input
+                  class="form-check-input"
+                  type="radio"
+                  name="checkboxSave"
+                  value="saveBox"
+                  id="l_box1"
+                />Сохранить данные</label
               >
-                <option selected value="Uniform">Равномерное распределение</option>
-                <option value="Beta">Бета-распределение</option>
-                <option value="Prop">Распределение по долям</option>
-              </select>
             </div>
-           
+            <div class="section-inputNumber__button">
+              <input
+                type="file"
+                class="form-control form-control-sm inp-file"
+                value="Обзор..."
+                name="flop"
+                id="flop"
+                onchange="readFile(this)"
+              />
+              <input
+                type="submit"
+                class="btn btn-primary next"
+                value="Дальше"
+                onclick="openTab('inputData');"
+              />
+            </div>
           </div>
-           
           <div id="checkbox-section" class="checkbox-section"></div>
-          <input type="button" onclick="document.location='fields'" value="Большой граф" class="btn btn-primary">
+          <div id="add-section" class="add-section"></div>
         </section>
         <section
           class="section__inputData"

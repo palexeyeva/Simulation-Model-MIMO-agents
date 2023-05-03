@@ -82,6 +82,62 @@ function openBox() {
 
 }
 
+function additionalInfo(opt){
+
+  console.log(opt.value)
+  if (opt.value =="Influential") {
+    addInf();
+  }
+
+
+}
+
+
+function addInf() {
+
+  p = document.createElement('h2')
+  p.innerText = "Дополнительные параметры сети"
+  document.getElementById("add-section").appendChild(p);
+
+  newDiv = document.createElement('div')
+  newDiv.id = "input-inf"
+  document.getElementById("add-section").appendChild(newDiv);
+
+  var input = document.createElement('input');
+  input.type="number";
+  input.name = "idAgent";
+  input.id = "idAgent"
+  p2 = document.createElement('p')
+  p2.innerText = "Номер такта для добавления влиятельного агента";
+
+  document.getElementById("input-inf").appendChild(p2);
+  document.getElementById("input-inf").appendChild(input);
+
+
+
+  
+  // nameArr = ['Матрица', 'Пороги','Начальное состояние','Память', 'Коэф. дисконтирования', 'Стохастический вектор']
+  // nameId = ['matrix_str','Th_str','init_str','mem_str','disc_str', 'st_str']
+  // for (i=0; i<6; i++) {
+  //   var input = document.createElement('input');
+  //   input.type="checkbox";
+  //   input.id="inpID" + i;
+  //   input.name = nameId[i];
+  //   input.className = "form-check-input"
+
+    
+  //   var label = document.createElement('label');
+  //   label.textContent = nameArr[i];
+  //   label.id="lblID" + i;
+  //   label.className = "labChk"
+  //   label.setAttribute("for", input.id);
+    
+  //   document.getElementById("checkboxes").appendChild(label);
+  //   label.parentNode.insertBefore(input, label);
+  // }
+
+}
+
 function interData(){
   sc = document.getElementById("txtInput").innerText;
 
