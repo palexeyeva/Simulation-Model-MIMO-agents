@@ -178,15 +178,16 @@ def TwoCommunity(n):
 
 def countCommunityVK(id_name):
 
-    with open("data_with_distribution.json", "r") as infile:
+    with open("data_with_distribution.json", "r", encoding='utf-8') as infile:
         data_json = infile.read()
     data_json= json.loads(data_json)
     
-    Th = [0, 0]
-    mem = [1, 1]
-    disc = [1, 1]
+    Th = [0, 0, 0, 0]
+    mem = [1, 1, 1, 1]
+    disc = [1, 1, 1, 1]
 
     for i in range(len(id_name)):
+        cntFlag = 0
         for item in data_json:
             if str(id_name[i]) in data_json[item].keys():
                 Th.append(data_json[item][str(id_name[i])]["param"]["Th"])
@@ -197,6 +198,16 @@ def countCommunityVK(id_name):
                     mem.append(1)
                     disc.append(1)
 
+            elif cntFlag < 2:
+                cntFlag += 1
+
+            elif cntFlag == 2:
+                mem.append(1)
+                disc.append(1)
+                Th.append(0.5)
+        cntFlag = 0
+
+
     return Th, mem, disc 
 
 
@@ -205,7 +216,7 @@ def ParamCommunityVK(n):
     R = []
 
     excel_data = pd.read_excel('matrix.xlsx')
-    data = pd.DataFrame(excel_data, columns=['matrix'])
+    data = pd.DataFrame(excel_data)
 
     for i in range(n):
         R.append(list(map(int, data['matrix'][i].split(";"))))
@@ -336,7 +347,7 @@ def index(request):
                 Th, mem, disc = countCommunityVK(id_name)
             else:
                 Th = np.random.triangular(0, 0.2, 0.7, n)
-            print(Th)
+            # print(Th)
 
         #Проверка на фиксацию начального состояния сети
         try:
@@ -352,11 +363,11 @@ def index(request):
                     init.append(1)
                 for i in range(n-count):
                     init.append(2)
-                print(init)
+                # print(init)
             elif request.POST['graphOptions'] == 'Influential' :
                 for i in range(n): 
                     init.append(1)
-                print(init)
+                # print(init)
             elif request.POST['vectOptions'] == 'Prop' :
                 propN0 = int(n/3)
                 propN2 = int(n/4)
@@ -370,7 +381,7 @@ def index(request):
             else:
                 # init = np.random.randint(0, cntType + 1, n) 
                 for i in range(n):
-                    init.append(0)
+                    init.append(1)
         #Проверка на фиксацию глубины памяти        
         try:
             me_str = request.POST['mem_str']
@@ -381,6 +392,8 @@ def index(request):
             if request.POST['graphOptions'] != 'ParamCommunityVK':
                 for i in range(n):
                     mem.append(1)
+            print(mem)
+            print(len(mem))
         
         #Проверка на фиксацию коэф. дисконтирования
         try:
@@ -392,6 +405,7 @@ def index(request):
             if request.POST['graphOptions'] != 'ParamCommunityVK':
                 for i in range(n):
                     disc.append(1)
+            # print(disc)
 
         #Проверка на фиксацию стохастического вектора
         try:
@@ -560,8 +574,10 @@ def index(request):
         state = initial.copy()
 
         curMem = []
-
+        print(n)
+        print(len(memory))
         for i in range(n):
+            # print(i)
             b = np.ones((memory[i], cntType))
             curMem.append(b)
         for i in range(n):
@@ -569,7 +585,8 @@ def index(request):
                 for k in range(cntType):
                     curMem[i][j][k] = curMem[i][j][k]*0
         
-        flagToChange = True                    
+        flagToChange = True  
+        flagToChange2 = 0                  
         while fl == 1:
             step = 0      
             while step < iter:
@@ -582,22 +599,94 @@ def index(request):
                     initial[n-1] = 2
                     Th[n-1] = 0.1
                 
+                #индекс сообщества
+                # if (request.POST['graphOptions'] == 'TwoCommunityVK' or request.POST['graphOptions'] == 'ParamCommunityVK') and step % 6 == 0:
+                #         initial[0] = 0
+                #         initial[1] = 0
+                # elif (request.POST['graphOptions'] == 'TwoCommunityVK' or request.POST['graphOptions'] == 'ParamCommunityVK') and step % 6 == 0:
+                #         if flagToChange:
+                #             initial[0] = 1
+                #             initial[1] = 2
+                #             flagToChange = False
+                #         else: 
+                #             initial[0] = 0
+                #             initial[1] = 2
+                #             flagToChange = True
 
-                if request.POST['graphOptions'] == 'TwoCommunityVK' and step % 6 != 0:
+                if (request.POST['graphOptions'] == 'TwoCommunityVK' or request.POST['graphOptions'] == 'ParamCommunityVK') and step < 10:
                         initial[0] = 0
-                        initial[187] = 0
-                elif request.POST['graphOptions'] == 'TwoCommunityVK' and step % 6 == 0:
+                        initial[1] = 0
+                        initial[2] = 0
+                        initial[3] = 0
+                elif (request.POST['graphOptions'] == 'TwoCommunityVK' or request.POST['graphOptions'] == 'ParamCommunityVK') and step >= 10 and step % 6 == 0:
                         if flagToChange:
-                            initial[0] = 1
-                            initial[187] = 0
+                            initial[0] = 2
+                            initial[1] = 2
+                            initial[2] = 2
+                            initial[3] = 2
                             flagToChange = False
                         else: 
-                            initial[0] = 0
-                            initial[187] = 2
+                            initial[0] = 2
+                            initial[1] = 2
+                            initial[2] = 2
+                            initial[3] = 2
                             flagToChange = True
+                else:
+                    initial[0] = 0
+                    initial[1] = 0
+                    initial[2] = 0
+                    initial[3] = 0
 
-                elif request.POST['graphOptions'] == 'TwoCommunity':
-                    initial[0] = 1
+                # if (request.POST['graphOptions'] == 'TwoCommunityVK' or request.POST['graphOptions'] == 'ParamCommunityVK') and step < 10:
+                #         initial[0] = 0
+                #         initial[1] = 0
+                #         initial[2] = 0
+                #         initial[3] = 0
+                # elif (request.POST['graphOptions'] == 'TwoCommunityVK' or request.POST['graphOptions'] == 'ParamCommunityVK') and step >= 10:
+                #         if flagToChange2 == 0:
+                #             initial[0] = 2
+                #             initial[1] = 0
+                #             initial[2] = 0
+                #             initial[3] = 0
+                #             flagToChange2 += 1
+                #         elif flagToChange2 == 1: 
+                #             initial[0] = 0
+                #             initial[1] = 2
+                #             initial[2] = 0
+                #             initial[3] = 0
+                #             flagToChange2 += 1
+                #         elif flagToChange2 == 2: 
+                #             initial[0] = 0
+                #             initial[1] = 0
+                #             initial[2] = 2
+                #             initial[3] = 0
+                #             flagToChange2 += 1
+                #         elif flagToChange2 == 3: 
+                #             initial[0] = 0
+                #             initial[1] = 0
+                #             initial[2] = 0
+                #             initial[3] = 2
+                #             flagToChange2 = 0
+                # else:
+                #     initial[0] = 0
+                #     initial[1] = 0
+                #     initial[2] = 0
+                #     initial[3] = 0
+
+
+                # if (request.POST['graphOptions'] == 'TwoCommunityVK' or request.POST['graphOptions'] == 'ParamCommunityVK'):
+                #         if flagToChange:
+                #             initial[0] = 0
+                #             initial[1] = 2
+                #             flagToChange = False
+                #         else: 
+                #             initial[0] = 1
+                #             initial[1] = 0
+                #             flagToChange = True
+
+                # elif (request.POST['graphOptions'] == 'TwoCommunityVK' or request.POST['graphOptions'] == 'ParamCommunityVK'):
+                #     initial[0] = 10
+                #     initial[1] = 0
                     # for i in range(n):
                     #     for j in range(n):
                     #         if  i == n - 2:
@@ -696,7 +785,7 @@ def index(request):
             x = np.arange(t)
             y = []
             
-            if request.POST['graphOptions'] == 'TwoCommunityVK':
+            if (request.POST['graphOptions'] == 'TwoCommunityVK' or request.POST['graphOptions'] == 'ParamCommunityVK'):
                 df = pd.DataFrame(np.transpose(plotState))
 
                 with open('m3.csv', 'a', newline='') as f:
