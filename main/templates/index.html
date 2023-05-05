@@ -90,8 +90,9 @@
               <input type="number" name="cntType" id="cntType" />
             </div>
             <div class="inputNumber__graph num">
-              <p>Топология графа</p>
               <br />
+              <p>Топология графа</p>
+              
               <select
                 class="form-select form-select-sm"
                 aria-label=".form-select-sm example"
@@ -99,16 +100,17 @@
                 onchange="additionalInfo(this)"
               >
                 <option selected value="СompleteGraph">Полный граф</option>
-                <option value="ERGraph">Граф ЭР</option>
+                <option value="ERGraph">Модель Эрдёша Реньи</option>
+
+                <option value="BAGraph">Модель Барабаши-Альберт</option>
+                <option value="WSGraph">Модель Уоттса-Строгаца</option>
                 <option value="Influential">
-                  Граф ЭР с влиятельным агентом
+                  Модель Эрдёша Реньи с влиятельным агентом
                 </option>
-                <option value="BAGraph">Граф Барабаши-Альберт</option>
-                <option value="WSGraph">Граф Уоттса-Строгаца</option>
                 <option value="TwoComplGraph">Две сети полного графа</option>
-                <option value="TwoCommunity">Два сообщества</option>
-                <option value="TwoCommunityVK">Два сообщества ВК</option>
-                <option value="ParamCommunityVK">Выгрузка сообществ ВК</option>
+                <option value="TwoCommunity">Два генератора</option>
+                <!-- <option value="TwoCommunityVK">Два паблика ВК</option> -->
+                <option value="ParamCommunityVK">Выгрузка пабликов ВК</option>
               </select>
             </div>
 
@@ -131,17 +133,26 @@
             </div>
           </div>
           <div class="second-layort">
-
             <div class="count-graph__inp">
               <p>Количество графов на холсте</p>
-              <input type="number" name="cntGraph" id="cntGraph" />
+              <input type="number" name="cntGraph" id="cntGraph" value="10" />
             </div>
 
             <div class="count-graph__inp">
               <p>Шаг отрисовки графа</p>
-              <input type="number" name="iterStop" id="iterStop" />
+              <input type="number" name="iterStop" id="iterStop" value="3" />
             </div>
-
+            <div class="section-inputNumber__button">
+              <p>Загрузка параметров сети</p>
+              <input
+                type="file"
+                class="form-control form-control-sm inp-file"
+                value="Обзор..."
+                name="flop"
+                id="flop"
+                onchange="readFile(this)"
+              />
+            </div>
             <div class="svBox">
               <label for="l_box1"
                 ><input
@@ -153,21 +164,14 @@
                 />Сохранить данные</label
               >
             </div>
-            <div class="section-inputNumber__button">
+
+            <div class="submit-button">
               <input
-                type="file"
-                class="form-control form-control-sm inp-file"
-                value="Обзор..."
-                name="flop"
-                id="flop"
-                onchange="readFile(this)"
-              />
-              <input
-                type="submit"
-                class="btn btn-primary next"
-                value="Дальше"
-                onclick="openTab('inputData');"
-              />
+              type="submit"
+              class="btn btn-primary next"
+              value="Дальше"
+              onclick="openTab('inputData');"
+            />
             </div>
           </div>
           <div id="checkbox-section" class="checkbox-section"></div>

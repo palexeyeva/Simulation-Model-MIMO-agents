@@ -176,7 +176,7 @@ def TwoCommunity(n):
 
     return R
 
-def countCommunityVK(id_name):
+def countCommunityVK(id_name, mem_c, disc_c):
 
     with open("data_with_distribution.json", "r", encoding='utf-8') as infile:
         data_json = infile.read()
@@ -253,10 +253,12 @@ def index(request):
     id_name = []
     
 
-    # idAgent = 2 #такт для добавления влиятельного агента
-    cntGraph = 10 #количество графов
-    iterStop = 1 #шаг остановки 
+    idAgent = 0 #такт для добавления влиятельного агента
+    cntGraph = 0 #количество графов
+    iterStop = 0 #шаг остановки 
     
+    mem_c = 0 # глубина памяти у аналитиков
+    disc_c = 0 #коэф. диск у аналитиков
     
     fig = plt.figure(figsize=(10, 25), constrained_layout = True)
     
@@ -265,6 +267,8 @@ def index(request):
         n = int(request.POST['count'])      
         
         cntType = int(request.POST['cntType'])
+        cntGraph = int(request.POST['cntGraph'])
+        iterStop = int(request.POST['iterStop'])
 
         try: 
             flS = request.POST['checkboxSave']
@@ -273,7 +277,11 @@ def index(request):
             flagSave = False
 
         if request.POST['graphOptions'] == 'Influential':
-            idAgent = request.POST['idAgent']
+            idAgent = int(request.POST['idAgent'])
+
+        if request.POST['graphOptions'] == 'ParamCommunityVK':
+            mem_c = int(request.POST['memA'].replace(",", "."))
+            disc_c = float(request.POST['discA'].replace(",", "."))
 
         #Проверка наличия флага на фиксацию параметров
         try: 
@@ -347,7 +355,7 @@ def index(request):
             Th = []
             cnt = 0
             if request.POST['graphOptions'] == 'ParamCommunityVK':
-                Th, mem, disc = countCommunityVK(id_name)
+                Th, mem, disc = countCommunityVK(id_name, mem_c, disc_c)
             else:
                 Th = np.random.triangular(0, 0.2, 0.7, n)
             # print(Th)

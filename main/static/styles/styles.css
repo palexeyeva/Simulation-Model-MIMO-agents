@@ -85,8 +85,9 @@ p {
 .section-inputNumber__button{
     display: flex;
     /* align-items: end; */
-    margin-top: 70px;
+    /* margin-top: 70px; */
     justify-content: space-around;
+    flex-direction: column;
 }
 .inp-file {
     margin-right: 50px;
@@ -102,10 +103,10 @@ p {
     margin: 2vw auto;
 }
 
-.svBox {
+/* .svBox {
     padding-left: 40px;
     padding-top: 75px;
-}
+} */
 
 .checkbox-section, .add-section {
     display: flex;
@@ -119,6 +120,7 @@ p {
     display: flex;
     flex-direction: column;
     margin-right: auto;
+    margin-top: 40px;
     width: 20%;
 }
 
@@ -276,5 +278,32 @@ img {
     display: flex;
     justify-content: space-around;
     width: 100%;
-    margin-top: 15px;
+    margin-top: 50px;
+    text-align: center;
+}
+
+#input-param {
+    display: flex;
+    width: 100%;
+    margin-top: 40px;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.inp-add {
+    width: 18.5em;
+    padding-top: 20px;
+}
+
+#input-file {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 40px;
+}
+
+#input-param-inf {
+    display: flex;
+    width: 100%;
+    margin-top: 40px;
+    flex-wrap: wrap;
 }
